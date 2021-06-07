@@ -10,16 +10,17 @@ object PitchHelper {
         val refOctave = 4
         val two = 2.0
 
-        return (0 until 9)
-            .flatMap { octave ->
-                val deltaOctave = octave - refOctave
-                val semiTones = 12 * deltaOctave - 9
+        return ArrayList(  // Ensures that it supports random access
+            (0 until 9)
+                .flatMap { octave ->
+                    val deltaOctave = octave - refOctave
+                    val semiTones = 12 * deltaOctave - 9
 
-                PitchName.values()
-                    .mapIndexed { i, pitch ->
-                        val freq = ref * two.pow((semiTones.toDouble() + i) / 12)
-                        Pitch(pitch, octave, freq)
-                    }
-            }
+                    PitchName.values()
+                        .mapIndexed { i, pitch ->
+                            val freq = ref * two.pow((semiTones.toDouble() + i) / 12)
+                            Pitch(pitch, octave, freq)
+                        }
+                })
     }
 }
