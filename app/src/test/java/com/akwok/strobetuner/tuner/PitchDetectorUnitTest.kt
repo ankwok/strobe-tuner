@@ -1,5 +1,6 @@
 package com.akwok.strobetuner.tuner
 
+import com.akwok.strobetuner.input.AudioData
 import org.junit.Assert
 import org.junit.Test
 import kotlin.math.sin
@@ -21,7 +22,7 @@ class PitchDetectorUnitTest {
 
     @Test
     fun findClosestPitch() {
-        val detector = PitchDetector(440.0, sampleRate)
+        val detector = PitchDetector(440.0)
 
         findClosestPitchCases
             .forEach { case ->
@@ -48,7 +49,7 @@ class PitchDetectorUnitTest {
             val expectedPitch = case[1] as Pitch
 
             val audio = sineGenerator(freq)
-            val pitchError = detector.detect(audio)
+            val pitchError = detector.detect(AudioData(audio, sampleRate))
 
             Assert.assertEquals("Test case ($freq, $expectedPitch)", expectedPitch, pitchError.expected)
             Assert.assertEquals("Test case ($freq, $expectedPitch)", freq, pitchError.actualFreq, 1e-3)
@@ -56,14 +57,14 @@ class PitchDetectorUnitTest {
 
     @Test
     fun detectBasicSine() {
-        val detector = PitchDetector(440.0, sampleRate)
+        val detector = PitchDetector(440.0)
         val sineGenerator = { freq: Double -> sineWave(freq, 0.0) }
         runDetection(detector, sineGenerator = sineGenerator)
     }
 
     @Test
     fun detectOffsetSine() {
-        val detector = PitchDetector(440.0, sampleRate)
+        val detector = PitchDetector(440.0)
         val sineGenerator = { freq: Double -> sineWave(freq, 0.2) }
         runDetection(detector, sineGenerator = sineGenerator)
     }

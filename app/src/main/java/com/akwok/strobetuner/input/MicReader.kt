@@ -27,8 +27,11 @@ class MicReader : AudioReader {
 
     override fun stopRecording() = audioRecorder.stop()
 
+    val isRecording: Boolean
+        get() = audioRecorder.recordingState == AudioRecord.RECORDSTATE_RECORDING
+
     override fun read(duration: Duration, buf: AudioData?): AudioData {
-        val nSamples = (sampleRateInHz * duration.toMillis() / 1000).toInt()
+        val nSamples = getBufferSize(duration)
 
         val thisBuf = buf ?: AudioData(FloatArray(nSamples), sampleRateInHz)
         require(thisBuf.dat.size == nSamples)
@@ -37,6 +40,8 @@ class MicReader : AudioReader {
 
         return thisBuf
     }
+
+    fun getBufferSize(duration: Duration): Int = (sampleRateInHz * duration.toMillis() / 1000).toInt()
 
     companion object {
         const val sampleRateInHz = 44100

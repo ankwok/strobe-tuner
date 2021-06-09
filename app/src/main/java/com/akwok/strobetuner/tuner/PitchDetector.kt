@@ -1,13 +1,16 @@
 package com.akwok.strobetuner.tuner
 
+import com.akwok.strobetuner.input.AudioData
 import kotlin.math.sign
 
-class PitchDetector(ref: Double, sampleRateInHz: Int) {
+class PitchDetector(ref: Double) {
 
     private val pitches = PitchHelper.getFrequencies(ref)
-    private val dt = 1.0 / sampleRateInHz
 
-    fun detect(audio: FloatArray): PitchError {
+    fun detect(audioDat: AudioData): PitchError {
+        val dt = 1.0 / audioDat.sampleRate
+        val audio = audioDat.dat
+
         val zeros = (0 until (audio.size - 1))
             .asSequence()
             .map { i -> Point(dt * i, audio[i].toDouble()) to Point(dt * (i + 1), audio[i + 1].toDouble()) }
@@ -19,6 +22,7 @@ class PitchDetector(ref: Double, sampleRateInHz: Int) {
                 pair.first.t - pair.first.x / slope
             }
 
+        // TODO: The assumptions made below are generally not true.  I need to make this much more robust.
         val avgPeriod = 2 * zeros // twice because there are (hopefully only) two zero crossings per period
             .zipWithNext { first, second -> second - first }
             .average()
