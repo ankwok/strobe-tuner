@@ -5,39 +5,43 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.akwok.strobetuner.io.AudioData
 import com.akwok.strobetuner.io.MicReader
-import com.akwok.strobetuner.tuner.PitchDetector
-import com.akwok.strobetuner.tuner.PitchError
+import com.akwok.strobetuner.io.StorageWriter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.time.Duration
 
-class TunerModel : ViewModel() {
-    private val refA = 440.0 // TODO: make this configurable
+class SampleModel : ViewModel() {
+
     private val micReader = MicReader()
     private val readDuration = Duration.ofMillis(100)
-    private val tuner = PitchDetector(refA)
     private var audioData: AudioData? = null
 
     fun startRecording() {
         micReader.startRecording()
-        run()
+        isRecording.postValue(true)
     }
 
-    fun stopRecording() = micReader.stopRecording()
-
-    val pitchError: MutableLiveData<PitchError> by lazy {
-        MutableLiveData<PitchError>()
+    fun stopRecording() {
+        micReader.stopRecording()
+        isRecording.postValue(false)
     }
 
-    private fun run() {
+    val isRecording: MutableLiveData<Boolean> by lazy {
+        MutableLiveData(false)
+    }
+
+    fun write(writer: StorageWriter) {
         viewModelScope.launch(Dispatchers.IO) {
             while (micReader.isRecording) {
                 if (audioData == null || audioData!!.dat.size != micReader.getBufferSize(readDuration)) {
                     audioData = AudioData(FloatArray(micReader.getBufferSize(readDuration)), MicReader.sampleRateInHz)
                 }
-
-                pitchError.postValue(tuner.detect(micReader.read(readDuration, audioData)))
+                val data = micReader.read(readDuration, audioData).dat
+                val text = data.joinToString("\n")
+                writer.write(text)
+                writer.write("\n")
             }
         }
     }
+
 }

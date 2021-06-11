@@ -1,8 +1,10 @@
 package com.akwok.strobetuner
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.view.View
 import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -11,9 +13,16 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 import com.akwok.strobetuner.models.TunerModel
 import com.akwok.strobetuner.tuner.PitchError
+import java.time.LocalDateTime
+import java.time.ZoneOffset
 
 class TunerActivity : AppCompatActivity() {
     private val REQUEST_MIC: Int = 0
+
+    private var clickCount = 0
+    private var clickStart = 0L
+    private val clickStartTtl = 5L
+    private val clicksToSample = 6
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,6 +50,20 @@ class TunerActivity : AppCompatActivity() {
         model.stopRecording()
     }
 
+    fun onTunerClick(view: View) {
+        val now = LocalDateTime.now().toEpochSecond(ZoneOffset.UTC)
+        if (now - clickStart > clickStartTtl) {
+            clickStart = now
+            clickCount = 1
+        } else {
+            clickCount++
+        }
+
+        if (clickCount >= clicksToSample) {
+            gotoSample()
+        }
+    }
+
     private fun setupTextUpdater() {
         val obs = Observer<PitchError> { err -> textUpdater(err) }
         val model: TunerModel by viewModels()
@@ -66,4 +89,8 @@ class TunerActivity : AppCompatActivity() {
     private fun hasMicPermission(): Boolean =
         ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED
 
+    private fun gotoSample() {
+        val intent = Intent(this, SampleActivity::class.java)
+        startActivity(intent)
+    }
 }

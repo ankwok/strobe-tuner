@@ -1,6 +1,6 @@
 package com.akwok.strobetuner.tuner
 
-import com.akwok.strobetuner.input.AudioData
+import com.akwok.strobetuner.io.AudioData
 import kotlin.math.sign
 
 class PitchDetector(ref: Double) {

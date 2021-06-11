@@ -1,4 +1,4 @@
-package com.akwok.strobetuner.input
+package com.akwok.strobetuner.io
 
 data class AudioData(val dat: FloatArray, val sampleRate: Int) {
     override fun equals(other: Any?): Boolean {

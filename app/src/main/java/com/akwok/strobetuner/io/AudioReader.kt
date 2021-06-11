@@ -1,4 +1,4 @@
-package com.akwok.strobetuner.input
+package com.akwok.strobetuner.io
 
 import java.time.Duration
 
