@@ -3,8 +3,11 @@ package com.akwok.strobetuner.tuner
 import com.akwok.strobetuner.io.AudioData
 import org.junit.Assert
 import org.junit.Test
+import java.io.BufferedReader
+import java.io.InputStreamReader
 import kotlin.math.sin
 import kotlin.math.PI
+import kotlin.math.pow
 
 class PitchDetectorUnitTest {
 
@@ -67,5 +70,31 @@ class PitchDetectorUnitTest {
         val detector = PitchDetector(440.0)
         val sineGenerator = { freq: Double -> sineWave(freq, 0.2) }
         runDetection(detector, sineGenerator = sineGenerator)
+    }
+
+    @Test
+    fun detectVoice() {
+        val cases = listOf(
+            "voice_96.24.csv" to 96.24,
+            "voice_132.5.csv" to 132.5,
+            "voice_144.0.csv" to 144.0,
+            "voice_218.4.csv" to 218.4)
+
+        cases.forEach { pair -> detectVoice(pair.first, pair.second) }
+    }
+
+    private fun detectVoice(file: String, expectedFreq: Double) {
+        val str = javaClass.getResourceAsStream(file)
+
+        val reader = BufferedReader(InputStreamReader(str))
+        val wav = reader
+            .lineSequence()
+            .map { line -> line.toFloat() }
+            .toList()
+            .toFloatArray()
+
+        val detector = PitchDetector(440.0)
+        val err = detector.detect(AudioData(wav, sampleRate))
+        Assert.assertEquals(expectedFreq, err.actualFreq, PitchHelper.centRatio.pow(10) * expectedFreq)
     }
 }

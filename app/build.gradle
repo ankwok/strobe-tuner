@@ -81,4 +81,5 @@ dependencies {
     // optional - Test helpers for LiveData
     testImplementation "androidx.arch.core:core-testing:$arch_version"
 
+    implementation "com.github.wendykierp:JTransforms:3.1"
 }
