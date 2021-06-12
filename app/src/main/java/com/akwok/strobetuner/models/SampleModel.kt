@@ -8,13 +8,12 @@ import com.akwok.strobetuner.io.MicReader
 import com.akwok.strobetuner.io.StorageWriter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.time.Duration
 
 class SampleModel : ViewModel() {
 
     private val micReader = MicReader()
-    private val readDuration = Duration.ofMillis(100)
-    private var audioData: AudioData? = null
+    private val sampleSize = 2048
+    private val audioData = AudioData(FloatArray(sampleSize), MicReader.sampleRateInHz)
 
     fun startRecording() {
         micReader.startRecording()
@@ -33,10 +32,7 @@ class SampleModel : ViewModel() {
     fun write(writer: StorageWriter) {
         viewModelScope.launch(Dispatchers.IO) {
             while (micReader.isRecording) {
-                if (audioData == null || audioData!!.dat.size != micReader.getBufferSize(readDuration)) {
-                    audioData = AudioData(FloatArray(micReader.getBufferSize(readDuration)), MicReader.sampleRateInHz)
-                }
-                val data = micReader.read(readDuration, audioData).dat
+                val data = micReader.read(audioData).dat
                 val text = data.joinToString("\n")
                 writer.write(text)
                 writer.write("\n")

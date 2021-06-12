@@ -9,14 +9,13 @@ import com.akwok.strobetuner.tuner.PitchDetector
 import com.akwok.strobetuner.tuner.PitchError
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.time.Duration
 
 class TunerModel : ViewModel() {
     private val refA = 440.0 // TODO: make this configurable
     private val micReader = MicReader()
-    private val readDuration = Duration.ofMillis(100)
+    private val sampleSize = 2048
     private val tuner = PitchDetector(refA)
-    private var audioData: AudioData? = null
+    private val audioData: AudioData = AudioData(FloatArray(sampleSize), MicReader.sampleRateInHz)
 
     fun startRecording() {
         micReader.startRecording()
@@ -32,11 +31,7 @@ class TunerModel : ViewModel() {
     private fun run() {
         viewModelScope.launch(Dispatchers.IO) {
             while (micReader.isRecording) {
-                if (audioData == null || audioData!!.dat.size != micReader.getBufferSize(readDuration)) {
-                    audioData = AudioData(FloatArray(micReader.getBufferSize(readDuration)), MicReader.sampleRateInHz)
-                }
-
-                pitchError.postValue(tuner.detect(micReader.read(readDuration, audioData)))
+                pitchError.postValue(tuner.detect(micReader.read(audioData)))
             }
         }
     }

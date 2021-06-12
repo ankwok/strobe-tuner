@@ -9,24 +9,33 @@ import kotlin.math.sqrt
 class PitchDetector(ref: Double) {
 
     private val pitches = PitchHelper.getFrequencies(ref)
+    private val gridSearchNum = 10
 
-    fun detect(audioDat: AudioData): PitchError = autocorrDetect(audioDat) //naiveDetect(audioDat)
-
-    private fun naiveDetect(audioDat: AudioData): PitchError {
-        val avgPeriod = computePeriodFromZeroCrossings(audioDat, 0.0)
-        val avgFreq = 1.0 / avgPeriod.mean
-        val closestPitch = findClosestPitch(avgFreq)
-        return PitchError(closestPitch, avgFreq, getCI(avgPeriod))
-    }
+    fun detect(audioDat: AudioData): PitchError = autocorrDetect(audioDat)
 
     private fun autocorrDetect(audioDat: AudioData): PitchError {
         val autocorr = autocorrelate(audioDat.dat)
         val valid = autocorr.sliceArray(IntRange(0, autocorr.size / 2))
-        val maxVal = valid.maxOrNull()!!
-        val avgPeriod = computePeriodFromZeroCrossings(AudioData(valid, audioDat.sampleRate), 0.8 * maxVal)
-        val avgFreq = 1.0 / avgPeriod.mean
-        val closestPitch = findClosestPitch(avgFreq)
-        return PitchError(closestPitch, avgFreq, getCI(avgPeriod))
+
+        val bounds = valid.fold(Interval(valid.first().toDouble(), valid.first().toDouble()), { agg, x ->
+            when {
+                x < agg.low -> agg.copy(low = x.toDouble())
+                x > agg.high -> agg.copy(high = x.toDouble())
+                else -> agg
+            }
+        })
+
+        val dx = (bounds.high - bounds.low) / (gridSearchNum + 1)
+
+        return (0 until gridSearchNum)
+            .map { i ->
+                val offset = bounds.low + (i + 1) * dx
+                val avgPeriod = computePeriodFromZeroCrossings(AudioData(valid, audioDat.sampleRate), offset)
+                val avgFreq = 1.0 / avgPeriod.mean
+                val closestPitch = findClosestPitch(avgFreq)
+                PitchError(closestPitch, avgFreq, getCI(avgPeriod))
+            }
+            .minByOrNull { err -> FreqErr(err.expected.freq, err.ci) }!!
     }
 
     fun getCI(err: MeanStd): Interval {
@@ -99,5 +108,16 @@ class PitchDetector(ref: Double) {
         return pitches[right]
     }
 
-    data class Point(val t: Double, val x: Double)
+    private data class Point(val t: Double, val x: Double)
+
+    private data class FreqErr(val freq: Double, val ci: Interval) : Comparable<FreqErr> {
+        override fun compareTo(other: FreqErr): Int = when {
+            freq < other.freq -> -1
+            freq > other.freq -> 1
+            freq == other.freq && ci.size < other.ci.size -> -1
+            freq == other.freq && ci.size > other.ci.size -> 1
+            else -> 0
+        }
+
+    }
 }

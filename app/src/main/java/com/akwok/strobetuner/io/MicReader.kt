@@ -3,7 +3,6 @@ package com.akwok.strobetuner.io
 import android.media.AudioFormat
 import android.media.AudioRecord
 import android.media.MediaRecorder
-import java.time.Duration
 import kotlin.math.max
 
 class MicReader : AudioReader {
@@ -30,18 +29,10 @@ class MicReader : AudioReader {
     val isRecording: Boolean
         get() = audioRecorder.recordingState == AudioRecord.RECORDSTATE_RECORDING
 
-    override fun read(duration: Duration, buf: AudioData?): AudioData {
-        val nSamples = getBufferSize(duration)
-
-        val thisBuf = buf ?: AudioData(FloatArray(nSamples), sampleRateInHz)
-        require(thisBuf.dat.size == nSamples)
-
-        audioRecorder.read(thisBuf.dat, 0, nSamples, AudioRecord.READ_BLOCKING)
-
-        return thisBuf
+    override fun read(buf: AudioData): AudioData {
+        audioRecorder.read(buf.dat, 0, buf.dat.size, AudioRecord.READ_BLOCKING)
+        return buf
     }
-
-    fun getBufferSize(duration: Duration): Int = (sampleRateInHz * duration.toMillis() / 1000).toInt()
 
     companion object {
         const val sampleRateInHz = 44100
