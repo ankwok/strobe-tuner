@@ -5,6 +5,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.View
+import android.widget.NumberPicker
 import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -13,6 +14,7 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 import com.akwok.strobetuner.models.TunerModel
 import com.akwok.strobetuner.tuner.PitchError
+import com.akwok.strobetuner.tuner.PitchHelper
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 
@@ -30,6 +32,7 @@ class TunerActivity : AppCompatActivity() {
 
         getMicPermission()
         setupTextUpdater()
+        setupRefPicker()
     }
 
     override fun onResume() {
@@ -77,6 +80,24 @@ class TunerActivity : AppCompatActivity() {
 
         val textBox = findViewById<TextView>(R.id.textView)
         textBox.text = "$noteStr\n$freq\n$error"
+    }
+
+    private fun setupRefPicker() {
+        val picker = findViewById<NumberPicker>(R.id.ref_picker)
+        picker.minValue = 400
+        picker.maxValue = 500
+
+        val prefs = getPreferences(MODE_PRIVATE)
+        picker.value = prefs.getInt(getString(R.string.reference_A), PitchHelper.defaultReference)
+
+        val model: TunerModel by viewModels()
+        picker.setOnValueChangedListener { _, _, newVal ->
+            model.referenceA.postValue(newVal)
+
+            val editor = prefs.edit()
+            editor.putInt(getString(R.string.reference_A), newVal)
+            editor.apply()
+        }
     }
 
     private fun getMicPermission() {

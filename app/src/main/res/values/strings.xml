@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">Strobe Tuner</string>
-    <string name="preferences_file">com.akwok.strobetuner.preferences_file</string>
+    <string name="reference_A">reference_a</string>
     <string name="record">Record</string>
     <string name="back">Back</string>
 </resources>
