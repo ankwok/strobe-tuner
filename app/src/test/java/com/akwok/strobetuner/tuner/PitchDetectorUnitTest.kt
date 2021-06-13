@@ -46,30 +46,29 @@ class PitchDetectorUnitTest {
         .map { i -> (sin(2 * PI * freq * i / sampleRate) + offset).toFloat() }
         .toFloatArray()
 
-    private fun runDetection(detector: PitchDetector, sineGenerator: (Double) -> FloatArray) = detectCases
+    private fun runDetection(sineGenerator: (Double) -> FloatArray) = detectCases
         .forEach { case ->
+            val detector = PitchDetector(440.0)
             val freq = case[0] as Double
             val expectedPitch = case[1] as Pitch
 
             val audio = sineGenerator(freq)
             val pitchError = detector.detect(AudioData(audio, sampleRate))
 
-            Assert.assertEquals("Test case ($freq, $expectedPitch)", expectedPitch, pitchError.expected)
-            Assert.assertEquals("Test case ($freq, $expectedPitch)", freq, pitchError.actualFreq, 1e-3)
+            Assert.assertEquals("Test case ($freq, $expectedPitch)", expectedPitch, pitchError!!.expected)
+            Assert.assertEquals("Test case ($freq, $expectedPitch)", freq, pitchError!!.actualFreq, 1e-3)
         }
 
     @Test
     fun detectBasicSine() {
-        val detector = PitchDetector(440.0)
         val sineGenerator = { freq: Double -> sineWave(freq, 0.0) }
-        runDetection(detector, sineGenerator = sineGenerator)
+        runDetection(sineGenerator = sineGenerator)
     }
 
     @Test
     fun detectOffsetSine() {
-        val detector = PitchDetector(440.0)
         val sineGenerator = { freq: Double -> sineWave(freq, 0.2) }
-        runDetection(detector, sineGenerator = sineGenerator)
+        runDetection(sineGenerator = sineGenerator)
     }
 
     @Test
@@ -80,10 +79,21 @@ class PitchDetectorUnitTest {
             "voice_144.0.csv" to 144.0,
             "voice_218.4.csv" to 218.4)
 
-        cases.forEach { pair -> detectVoice(pair.first, pair.second) }
+        cases.forEach { pair -> testDetect(pair.first, pair.second) }
     }
 
-    private fun detectVoice(file: String, expectedFreq: Double) {
+    @Test
+    fun detectCello() {
+        val cases = listOf(
+            "cello_65.89.csv" to 65.89,
+            "cello_98.73.csv" to 98.73,
+            "cello_148.3.csv" to 148.3,
+            "cello_222.1.csv" to 222.1)
+
+        cases.forEach { pair -> testDetect(pair.first, pair.second) }
+    }
+
+    private fun testDetect(file: String, expectedFreq: Double) {
         val str = javaClass.getResourceAsStream(file)
 
         val reader = BufferedReader(InputStreamReader(str))
@@ -95,6 +105,6 @@ class PitchDetectorUnitTest {
 
         val detector = PitchDetector(440.0)
         val err = detector.detect(AudioData(wav, sampleRate))
-        Assert.assertEquals(expectedFreq, err.actualFreq, PitchHelper.centRatio.pow(10) * expectedFreq)
+        Assert.assertEquals(expectedFreq, err!!.actualFreq, PitchHelper.centRatio.pow(10) * expectedFreq)
     }
 }

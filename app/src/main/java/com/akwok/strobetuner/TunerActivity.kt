@@ -65,7 +65,7 @@ class TunerActivity : AppCompatActivity() {
     }
 
     private fun setupTextUpdater() {
-        val obs = Observer<PitchError> { err -> textUpdater(err) }
+        val obs = Observer<PitchError?> { err -> if (err != null) textUpdater(err) }
         val model: TunerModel by viewModels()
         model.pitchError.observe(this, obs)
     }

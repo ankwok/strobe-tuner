@@ -1,47 +1,71 @@
 package com.akwok.strobetuner.tuner
 
+import android.util.Log
 import com.akwok.strobetuner.io.AudioData
 import org.jtransforms.fft.FloatFFT_1D
-import kotlin.math.pow
-import kotlin.math.sign
 import kotlin.math.sqrt
+import kotlin.system.measureTimeMillis
 
-class PitchDetector(ref: Double) {
+class PitchDetector(val ref: Double) {
 
     private val pitches = PitchHelper.getFrequencies(ref)
-    private val gridSearchNum = 10
+    private val gridSearchNum = 5
 
-    fun detect(audioDat: AudioData): PitchError = autocorrDetect(audioDat)
+    private var kalmanFilter: KalmanUpdater? = null
+    private var currentPitch: Pitch? = null
 
-    private fun autocorrDetect(audioDat: AudioData): PitchError {
+    fun detect(audioDat: AudioData): PitchError? {
+        val pitchError: PitchError? = detectWithKalmanFilter(audioDat)
+        val millis = measureTimeMillis {
+            pitchError
+        }
+        Log.d(this::class.simpleName, "detect() took $millis ms")
+        return pitchError
+    }
+
+    private fun detectWithKalmanFilter(audioDat: AudioData): PitchError? {
+        if (audioDat.dat.maxOrNull().let { x -> x == null || x <= 0.1 }) {
+            return null
+        }
+
+        val measurement = autocorrDetect(audioDat) ?: return null
+
+        if (currentPitch != measurement.expected)
+        {
+            Log.d(this::class.simpleName, "Resetting Kalman filter from $currentPitch to ${measurement.expected}")
+            val halfCentPeriod = measurement.actualPeriod * (1 - 1.0 / sqrt(PitchHelper.centRatio))
+            kalmanFilter = KalmanUpdater(
+                KalmanState(measurement.actualPeriod, measurement.std * measurement.std),
+                halfCentPeriod * halfCentPeriod)
+            currentPitch = measurement.expected
+        } else {
+            kalmanFilter!!.update(measurement.actualPeriod, measurement.std * measurement.std)
+        }
+
+        return PitchError(
+            measurement.expected,
+            kalmanFilter!!.stateEstimate.x,
+            sqrt(kalmanFilter!!.stateEstimate.P))
+    }
+
+    private fun autocorrDetect(audioDat: AudioData): PitchError? {
         val autocorr = autocorrelate(audioDat.dat)
         val valid = autocorr.sliceArray(IntRange(0, autocorr.size / 2))
 
-        val bounds = valid.fold(Interval(valid.first().toDouble(), valid.first().toDouble()), { agg, x ->
-            when {
-                x < agg.low -> agg.copy(low = x.toDouble())
-                x > agg.high -> agg.copy(high = x.toDouble())
-                else -> agg
-            }
-        })
+        val maxVal = valid.maxOrNull()!!
+        val dx = maxVal / gridSearchNum
 
-        val dx = (bounds.high - bounds.low) / (gridSearchNum + 1)
-
-        return (0 until gridSearchNum)
+        val err = (0 until gridSearchNum)
             .map { i ->
-                val offset = bounds.low + (i + 1) * dx
-                val avgPeriod = computePeriodFromZeroCrossings(AudioData(valid, audioDat.sampleRate), offset)
+                val offset = i * dx
+                val avgPeriod = computePeriodFromZeroCrossings(AudioData(valid, audioDat.sampleRate), offset.toDouble())
                 val avgFreq = 1.0 / avgPeriod.mean
                 val closestPitch = findClosestPitch(avgFreq)
-                PitchError(closestPitch, avgFreq, getCI(avgPeriod))
+                PitchError(closestPitch, avgPeriod.mean, avgPeriod.std)
             }
-            .minByOrNull { err -> FreqErr(err.expected.freq, err.ci) }!!
-    }
+            .minByOrNull { err -> PitchErr(err.expected, err.ci) }!!
 
-    fun getCI(err: MeanStd): Interval {
-        val low = 1.0 / (err.mean + err.std)
-        val hi = 1.0 / (err.mean - err.std)
-        return Interval(low, hi)
+        return if (err.actualPeriod.isFinite()) err else null
     }
 
     fun computePeriodFromZeroCrossings(audioDat: AudioData, offset: Double): MeanStd {
@@ -51,7 +75,7 @@ class PitchDetector(ref: Double) {
         val zeros = (0 until (audio.size - 1))
             .asSequence()
             .map { i -> Point(dt * i, audio[i].toDouble()) to Point(dt * (i + 1), audio[i + 1].toDouble()) }
-            .filter { pair -> sign(pair.first.x - offset) != sign(pair.second.x - offset) && pair.first.x != offset } // Corner case where something is exactly zero
+            .filter { pair -> pair.first.x > offset && pair.second.x <= offset } // get crossings from above
             .map { pair ->
                 // y - y1 = m(x - x1)
                 // ==> x = (y - y1) / m + x1
@@ -62,9 +86,9 @@ class PitchDetector(ref: Double) {
         val deltas = zeros
             .zipWithNext { first, second -> second - first }
             .toList()
-        val avg = 2 * deltas.average() // twice because there are (hopefully only) two zero crossings per period
+        val avg = deltas.average() // twice because there are (hopefully only) two zero crossings per period
         val variance = deltas
-            .map { d -> (d - avg).pow(2) }
+            .map { d -> (d - avg) * (d - avg) }
             .average()
 
         return MeanStd(avg, sqrt(variance))
@@ -110,13 +134,11 @@ class PitchDetector(ref: Double) {
 
     private data class Point(val t: Double, val x: Double)
 
-    private data class FreqErr(val freq: Double, val ci: Interval) : Comparable<FreqErr> {
-        override fun compareTo(other: FreqErr): Int = when {
-            freq < other.freq -> -1
-            freq > other.freq -> 1
-            freq == other.freq && ci.size < other.ci.size -> -1
-            freq == other.freq && ci.size > other.ci.size -> 1
-            else -> 0
+    private data class PitchErr(val pitch: Pitch, val ci: Interval) : Comparable<PitchErr> {
+        override fun compareTo(other: PitchErr): Int = when {
+            pitch < other.pitch -> -1
+            pitch > other.pitch -> 1
+            else -> ci.size.compareTo(other.ci.size)
         }
 
     }
