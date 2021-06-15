@@ -15,8 +15,10 @@ import androidx.lifecycle.Observer
 import com.akwok.strobetuner.models.TunerModel
 import com.akwok.strobetuner.tuner.PitchError
 import com.akwok.strobetuner.tuner.PitchHelper
+import com.akwok.strobetuner.views.StrobeView
 import java.time.LocalDateTime
 import java.time.ZoneOffset
+import kotlin.math.roundToInt
 
 class TunerActivity : AppCompatActivity() {
     private val REQUEST_MIC: Int = 0
@@ -33,6 +35,7 @@ class TunerActivity : AppCompatActivity() {
         getMicPermission()
         setupTextUpdater()
         setupRefPicker()
+        setupStrobe()
     }
 
     override fun onResume() {
@@ -44,6 +47,9 @@ class TunerActivity : AppCompatActivity() {
 
         val model: TunerModel by viewModels()
         model.startRecording()
+
+        val strobe = findViewById<StrobeView>(R.id.strobe_view)
+        strobe.isRunning = true
     }
 
     override fun onPause() {
@@ -51,6 +57,9 @@ class TunerActivity : AppCompatActivity() {
 
         val model: TunerModel by viewModels()
         model.stopRecording()
+
+        val strobe = findViewById<StrobeView>(R.id.strobe_view)
+        strobe.isRunning = false
     }
 
     fun onTunerClick(view: View) {
@@ -77,9 +86,10 @@ class TunerActivity : AppCompatActivity() {
         val noteStr = "${pitchError.expected.pitch} ${pitchError.expected.octave}"
         val freq = String.format("%.1f", pitchError.actualFreq)
         val error = String.format("%+.1f", pitchError.deltaFreq)
+        val centsErr = String.format("%+d", pitchError.errorInCents.roundToInt())
 
         val textBox = findViewById<TextView>(R.id.textView)
-        textBox.text = "$noteStr\n$freq\n$error"
+        textBox.text = "$noteStr\n$freq Hz \n$error Hz\n$centsErr cents"
     }
 
     private fun setupRefPicker() {
@@ -87,10 +97,13 @@ class TunerActivity : AppCompatActivity() {
         picker.minValue = 400
         picker.maxValue = 500
 
-        val prefs = getPreferences(MODE_PRIVATE)
-        picker.value = prefs.getInt(getString(R.string.reference_A), PitchHelper.defaultReference)
-
         val model: TunerModel by viewModels()
+
+        val prefs = getPreferences(MODE_PRIVATE)
+        val savedRef = prefs.getInt(getString(R.string.reference_A), PitchHelper.defaultReference)
+        picker.value = savedRef
+        model.referenceA.postValue(savedRef)
+
         picker.setOnValueChangedListener { _, _, newVal ->
             model.referenceA.postValue(newVal)
 
@@ -98,6 +111,17 @@ class TunerActivity : AppCompatActivity() {
             editor.putInt(getString(R.string.reference_A), newVal)
             editor.apply()
         }
+    }
+
+    private fun setupStrobe() {
+        val strobe = findViewById<StrobeView>(R.id.strobe_view)
+
+        val obs = Observer<PitchError?> { err ->
+            strobe.errorInCents = err?.errorInCents?.toFloat() ?: 0f
+        }
+
+        val model: TunerModel by viewModels()
+        model.pitchError.observe(this, obs)
     }
 
     private fun getMicPermission() {
