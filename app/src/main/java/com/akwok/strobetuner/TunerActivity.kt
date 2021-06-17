@@ -83,13 +83,18 @@ class TunerActivity : AppCompatActivity() {
     }
 
     private fun textUpdater(pitchError: PitchError) {
-        val noteStr = "${pitchError.expected.pitch} ${pitchError.expected.octave}"
-        val freq = String.format("%.1f", pitchError.actualFreq)
-        val error = String.format("%+.1f", pitchError.deltaFreq)
-        val centsErr = String.format("%+d", pitchError.errorInCents.roundToInt())
+        val noteName = findViewById<TextView>(R.id.note_name)
+        noteName.text = getString(R.string.note_name,
+            pitchError.expected.pitch.englishName(), pitchError.expected.octave)
 
-        val textBox = findViewById<TextView>(R.id.textView)
-        textBox.text = "$noteStr\n$freq Hz \n$error Hz\n$centsErr cents"
+        val freq = findViewById<TextView>(R.id.frequency)
+        freq.text = getString(R.string.note_freq, pitchError.actualFreq)
+
+        val centsErr = findViewById<TextView>(R.id.cents_error)
+        centsErr.text = getString(R.string.cents_err, pitchError.errorInCents.roundToInt())
+
+        val strobe = findViewById<StrobeView>(R.id.strobe_view)
+        strobe.numBands = 2 * (pitchError.expected.octave + 1)
     }
 
     private fun setupRefPicker() {
