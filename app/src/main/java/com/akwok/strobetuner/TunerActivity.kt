@@ -3,15 +3,18 @@ package com.akwok.strobetuner
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.res.Configuration
 import android.os.Bundle
 import android.view.View
 import android.widget.NumberPicker
 import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
+import androidx.preference.PreferenceManager
 import com.akwok.strobetuner.models.TunerModel
 import com.akwok.strobetuner.tuner.PitchError
 import com.akwok.strobetuner.tuner.PitchHelper
@@ -45,6 +48,8 @@ class TunerActivity : AppCompatActivity() {
             recreate() // TODO: This is bad from a UX point of view.
         }
 
+        setupRefPicker()
+
         val model: TunerModel by viewModels()
         model.startRecording()
 
@@ -76,6 +81,8 @@ class TunerActivity : AppCompatActivity() {
         }
     }
 
+    fun onSettingsClick(view: View) = SettingsActivity.gotoSettings(this)
+
     private fun setupTextUpdater() {
         val obs = Observer<PitchError?> { err -> if (err != null) textUpdater(err) }
         val model: TunerModel by viewModels()
@@ -104,16 +111,18 @@ class TunerActivity : AppCompatActivity() {
 
         val model: TunerModel by viewModels()
 
-        val prefs = getPreferences(MODE_PRIVATE)
-        val savedRef = prefs.getInt(getString(R.string.reference_A), PitchHelper.defaultReference)
-        picker.value = savedRef
+        val prefs = PreferenceManager.getDefaultSharedPreferences(applicationContext)
+        val savedRef = prefs
+            .getString(getString(R.string.ref_A_pref), PitchHelper.defaultReference.toString())
+            ?.toIntOrNull()
+        picker.value = savedRef!!
         model.referenceA.postValue(savedRef)
 
         picker.setOnValueChangedListener { _, _, newVal ->
             model.referenceA.postValue(newVal)
 
             val editor = prefs.edit()
-            editor.putInt(getString(R.string.reference_A), newVal)
+            editor.putString(getString(R.string.ref_A_pref), newVal.toString())
             editor.apply()
         }
     }
@@ -143,4 +152,5 @@ class TunerActivity : AppCompatActivity() {
         val intent = Intent(this, SampleActivity::class.java)
         startActivity(intent)
     }
+
 }

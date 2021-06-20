@@ -1,0 +1,28 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <EditTextPreference
+        app:key="@string/ref_A_pref"
+        app:title="@string/reference_A_title"
+        />
+
+    <SeekBarPreference
+        android:id="@+id/sensivity"
+        android:max="10"
+        app:key="@string/sensitivity_pref"
+        app:min="0"
+        app:title="@string/sensitivity_title" />
+
+    <ListPreference
+        app:defaultValue="english"
+        app:entries="@array/note_name_entries"
+        app:entryValues="@array/note_name_values"
+        app:key="@string/note_name_pref"
+        app:title="@string/note_name_title"
+        app:useSimpleSummaryProvider="true" />
+
+    <SwitchPreferenceCompat
+        app:key="@string/dark_mode_pref"
+        app:title="@string/dark_mode_title" />
+
+</PreferenceScreen>

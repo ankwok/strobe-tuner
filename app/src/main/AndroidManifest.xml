@@ -18,6 +18,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".SampleActivity" />
+        <activity android:name=".SettingsActivity" />
     </application>
 
 </manifest>

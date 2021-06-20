@@ -73,7 +73,7 @@ class PitchDetector(val ref: Double) {
         return if (err.actualPeriod.isFinite()) err else null
     }
 
-    fun computePeriodFromZeroCrossings(audioDat: AudioData, offset: Double): MeanStd {
+    private fun computePeriodFromZeroCrossings(audioDat: AudioData, offset: Double): MeanStd {
         val dt = 1.0 / audioDat.sampleRate
         val audio = audioDat.dat
 
@@ -99,7 +99,7 @@ class PitchDetector(val ref: Double) {
         return MeanStd(avg, sqrt(variance))
     }
 
-    fun autocorrelate(audio: FloatArray): FloatArray {
+    private fun autocorrelate(audio: FloatArray): FloatArray {
         val fft = FloatFFT_1D(audio.size.toLong())
 
         val window = FloatArray(audio.size)
