@@ -5,31 +5,31 @@ enum class PitchName {
 
     fun englishName(): String = when (this) {
         C -> "C"
-        C_SHARP -> "C♯ / D♭"
+        C_SHARP -> "D♭"
         D -> "D"
-        D_SHARP -> "D♯ / E♭"
+        D_SHARP -> "E♭"
         E -> "E"
         F -> "F"
-        F_SHARP -> "F♯ / G♭"
+        F_SHARP -> "G♭"
         G -> "G"
-        G_SHARP -> "G♯ / A♭"
+        G_SHARP -> "A♭"
         A -> "A"
-        A_SHARP -> "A♯ / B♭"
+        A_SHARP -> "B♭"
         B -> "B"
     }
 
     fun solfegeName(): String = when (this) {
         C -> "Do"
-        C_SHARP -> "Do♯ / Re♭"
+        C_SHARP -> "Re♭"
         D -> "Re"
-        D_SHARP -> "Re♯ / Mi♭"
+        D_SHARP -> "Mi♭"
         E -> "Mi"
         F -> "Fa"
-        F_SHARP -> "Fa♯ / Sol♭"
+        F_SHARP -> "Sol♭"
         G -> "Sol"
-        G_SHARP -> "Sol♯ / La♭"
+        G_SHARP -> "La♭"
         A -> "La"
-        A_SHARP -> "La♯ / Si♭"
+        A_SHARP -> "Si♭"
         B -> "Si"
     }
 }

@@ -11,6 +11,7 @@
     <string name="ref_A_pref">reference_a</string>
     <string name="noise_rejection_pref">sensitivity_pref</string>
     <string name="note_name_pref">note_name_pref"</string>
+    <string name="note_name_default">english</string>
     <string name="dark_mode_pref">dark_mode_pref</string>
 
     <string name="reference_A_title">Reference A frequency</string>

@@ -114,9 +114,15 @@ class TunerActivity : AppCompatActivity() {
     }
 
     private fun textUpdater(pitchError: PitchError) {
-        val noteName = findViewById<TextView>(R.id.note_name)
-        noteName.text = getString(R.string.note_name,
-            pitchError.expected.pitch.englishName(), pitchError.expected.octave)
+        val prefs = PreferenceManager.getDefaultSharedPreferences(applicationContext)
+        val noteName =
+            when (prefs.getString(getString(R.string.note_name_pref), getString(R.string.note_name_default))) {
+                "solfege" -> pitchError.expected.pitch.solfegeName()
+                else -> pitchError.expected.pitch.englishName()
+            }
+        val noteView = findViewById<TextView>(R.id.note_name)
+        noteView.text = getString(R.string.note_name,
+            noteName, pitchError.expected.octave)
 
         val freq = findViewById<TextView>(R.id.frequency)
         freq.text = getString(R.string.note_freq, pitchError.actualFreq)

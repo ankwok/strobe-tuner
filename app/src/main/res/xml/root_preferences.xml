@@ -16,7 +16,7 @@
         app:title="@string/noise_rejection_title" />
 
     <ListPreference
-        app:defaultValue="english"
+        app:defaultValue="@string/note_name_default"
         app:entries="@array/note_name_entries"
         app:entryValues="@array/note_name_values"
         app:key="@string/note_name_pref"

@@ -14,7 +14,6 @@ class StrobeView(context: Context, attrs: AttributeSet?) : View(context, attrs) 
 
     var numBands: Int = 8
     var errorInCents: Float = 0f
-    var scrollRate: Float = 0.03f  // Percent of width per cent error per second
 
     private val darkPaint = Paint().apply {
         isAntiAlias = true
@@ -65,7 +64,7 @@ class StrobeView(context: Context, attrs: AttributeSet?) : View(context, attrs) 
         val dx = width.toFloat() / (2 * numBands)
         val heightFloat = height.toFloat()
 
-        val offset = calcOffset(width, dx, errorInCents, now, lastT, lastOffset, scrollRate)
+        val offset = calcOffset(width, dx, errorInCents, now, lastT, lastOffset)
 
         (0 until numBands + 1)
             .forEach { i ->
@@ -83,14 +82,15 @@ class StrobeView(context: Context, attrs: AttributeSet?) : View(context, attrs) 
     }
 
     companion object {
+        const val scrollRate: Float = 0.05F // Percent of width per cent error per second
+
         fun calcOffset(
             widthPixels: Int,
             modulo: Float,
             errorInCents: Float,
             nowMillis: Long,
             lastMillis: Long,
-            lastOffset:Float,
-            scrollRate: Float): Float {
+            lastOffset: Float): Float {
 
             val rate = scrollRate * errorInCents * widthPixels
             val deltaSec = (nowMillis - lastMillis).toFloat() / 1000f
