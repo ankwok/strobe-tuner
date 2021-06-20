@@ -2,9 +2,9 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:keepScreenOn="true"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:keepScreenOn="true"
     android:onClick="onTunerClick"
     tools:context=".TunerActivity">
 
@@ -12,18 +12,20 @@
         android:id="@+id/note_name"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="200dp"
         android:textAlignment="center"
         android:textSize="80sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.35" />
 
     <NumberPicker
         android:id="@+id/ref_picker"
         android:layout_width="75dp"
         android:layout_height="100dp"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="16dp"
         android:theme="@style/NumberPickerText"
         app:layout_constraintEnd_toStartOf="@+id/hz"
         app:layout_constraintTop_toTopOf="parent" />
@@ -54,10 +56,12 @@
         android:layout_height="50dp"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
-        android:layout_marginBottom="200dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.75" />
 
     <TextView
         android:id="@+id/frequency"

@@ -87,6 +87,14 @@ class TunerActivity : AppCompatActivity() {
         val obs = Observer<PitchError?> { err -> if (err != null) textUpdater(err) }
         val model: TunerModel by viewModels()
         model.pitchError.observe(this, obs)
+
+        val verticalBias =
+            if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) 0.35f
+            else 0.15f
+        val noteName = findViewById<TextView>(R.id.note_name)
+        val params = noteName.layoutParams as ConstraintLayout.LayoutParams
+        params.verticalBias = verticalBias
+        noteName.layoutParams = params
     }
 
     private fun textUpdater(pitchError: PitchError) {
