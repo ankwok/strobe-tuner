@@ -33,13 +33,23 @@ class TunerModel : ViewModel() {
         MutableLiveData(PitchHelper.defaultReference)
     }
 
+    val detectionThreshold: MutableLiveData<Double> by lazy {
+        MutableLiveData(PitchDetector.defaultDetectionThreshold)
+    }
+
     private fun run() {
         viewModelScope.launch(Dispatchers.IO) {
             while (micReader.isRecording) {
                 val ref = (referenceA.value ?: PitchHelper.defaultReference).toDouble()
+                val threshold = detectionThreshold.value ?: PitchDetector.defaultDetectionThreshold
+
                 if (ref != tuner.ref) {
                     Log.d(this::class.simpleName, "Reference A changed from ${tuner.ref} to $ref")
-                    tuner = PitchDetector(ref)
+                    tuner = PitchDetector(ref, threshold)
+                } else if (threshold != tuner.detectionThreshold) {
+                    Log.d(this::class.simpleName,
+                        "Updating noise threshold from ${tuner.detectionThreshold} to $threshold")
+                    tuner = PitchDetector(ref, threshold)
                 }
 
                 pitchError.postValue(tuner.detect(micReader.read(audioData)))

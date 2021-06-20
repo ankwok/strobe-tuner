@@ -16,8 +16,10 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 import androidx.preference.PreferenceManager
 import com.akwok.strobetuner.models.TunerModel
+import com.akwok.strobetuner.tuner.PitchDetector
 import com.akwok.strobetuner.tuner.PitchError
 import com.akwok.strobetuner.tuner.PitchHelper
+import com.akwok.strobetuner.views.SettingsFragment
 import com.akwok.strobetuner.views.StrobeView
 import java.time.LocalDateTime
 import java.time.ZoneOffset
@@ -53,8 +55,22 @@ class TunerActivity : AppCompatActivity() {
         val model: TunerModel by viewModels()
         model.startRecording()
 
+        setupThreshold()
+
         val strobe = findViewById<StrobeView>(R.id.strobe_view)
         strobe.isRunning = true
+    }
+
+    private fun setupThreshold() {
+        val model: TunerModel by viewModels()
+        val prefs = PreferenceManager.getDefaultSharedPreferences(applicationContext)
+        val savedThreshold = prefs
+            .getInt(getString(R.string.noise_rejection_pref), -1)
+            .toDouble()
+        val convertedThreshold =
+            if (savedThreshold > 0) savedThreshold * PitchDetector.maxDetectionThreshold / SettingsFragment.noiseRejectionMaxValue
+            else PitchDetector.defaultDetectionThreshold
+        model.detectionThreshold.postValue(convertedThreshold)
     }
 
     override fun onPause() {

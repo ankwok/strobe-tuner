@@ -7,11 +7,13 @@
         />
 
     <SeekBarPreference
-        android:id="@+id/sensivity"
-        android:max="10"
-        app:key="@string/sensitivity_pref"
-        app:min="0"
-        app:title="@string/sensitivity_title" />
+        android:id="@+id/noise_rejection"
+        android:defaultValue="3"
+        android:enabled="true"
+        app:key="@string/noise_rejection_pref"
+        app:min="1"
+        app:summary="@string/noise_rejection_summary"
+        app:title="@string/noise_rejection_title" />
 
     <ListPreference
         app:defaultValue="english"

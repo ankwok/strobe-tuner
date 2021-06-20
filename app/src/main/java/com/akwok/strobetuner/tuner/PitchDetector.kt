@@ -6,7 +6,7 @@ import org.jtransforms.fft.FloatFFT_1D
 import kotlin.math.sqrt
 import kotlin.system.measureTimeMillis
 
-class PitchDetector(val ref: Double) {
+class PitchDetector(val ref: Double, val detectionThreshold: Double = defaultDetectionThreshold) {
 
     private val pitches = PitchHelper.getFrequencies(ref)
     private val gridSearchNum = 5
@@ -29,7 +29,7 @@ class PitchDetector(val ref: Double) {
     }
 
     private fun detectWithKalmanFilter(audioDat: AudioData): PitchError? {
-        if (audioDat.dat.maxOrNull().let { x -> x == null || x <= 0.1 }) {
+        if (audioDat.dat.maxOrNull().let { x -> x == null || x <= detectionThreshold }) {
             return null
         }
 
@@ -146,5 +146,10 @@ class PitchDetector(val ref: Double) {
             else -> ci.size.compareTo(other.ci.size)
         }
 
+    }
+
+    companion object {
+        const val defaultDetectionThreshold: Double = 0.1
+        const val maxDetectionThreshold = 0.4
     }
 }

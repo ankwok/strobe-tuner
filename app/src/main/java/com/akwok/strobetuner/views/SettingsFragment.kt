@@ -2,10 +2,7 @@ package com.akwok.strobetuner.views
 
 import android.os.Bundle
 import android.text.InputType
-import androidx.preference.EditTextPreference
-import androidx.preference.Preference
-import androidx.preference.PreferenceFragmentCompat
-import androidx.preference.PreferenceManager
+import androidx.preference.*
 import com.akwok.strobetuner.R
 import com.akwok.strobetuner.tuner.PitchHelper
 
@@ -24,5 +21,12 @@ class SettingsFragment : PreferenceFragmentCompat() {
         refAPref.setOnBindEditTextListener { et ->
             et.inputType = InputType.TYPE_CLASS_NUMBER
         }
+
+        val noiseRejection = findPreference<SeekBarPreference>(getString(R.string.noise_rejection_pref))!!
+        noiseRejection.max = noiseRejectionMaxValue
+    }
+
+    companion object {
+        const val noiseRejectionMaxValue = 20
     }
 }
