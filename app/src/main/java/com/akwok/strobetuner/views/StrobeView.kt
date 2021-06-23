@@ -2,11 +2,11 @@ package com.akwok.strobetuner.views
 
 import android.content.Context
 import android.graphics.Canvas
-import android.graphics.Color
 import android.graphics.Paint
 import android.util.AttributeSet
 import android.view.View
 import androidx.annotation.VisibleForTesting
+import com.akwok.strobetuner.R
 import java.time.Instant
 
 class StrobeView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
@@ -17,11 +17,15 @@ class StrobeView(context: Context, attrs: AttributeSet?) : View(context, attrs) 
 
     private val darkPaint = Paint().apply {
         isAntiAlias = true
-        color = Color.argb(255, 32, 32, 32)
+        color = resources.getColor(R.color.dark_strobe, resources.newTheme())
         style = Paint.Style.FILL_AND_STROKE
     }
 
-    private val lightColor = Color.argb(255, 225, 225, 225)
+    private val lightColor = Paint().apply {
+        isAntiAlias = true
+        color = resources.getColor(R.color.light_strobe, resources.newTheme())
+        style = Paint.Style.FILL_AND_STROKE
+    }
 
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     var lastT: Long = Instant.now().toEpochMilli()
@@ -54,25 +58,26 @@ class StrobeView(context: Context, attrs: AttributeSet?) : View(context, attrs) 
         super.onDraw(canvas)
 
         canvas.apply {
-            drawColor(lightColor)
             drawStrobeAndUpdateState(this)
         }
     }
 
     private fun drawStrobeAndUpdateState(canvas: Canvas) {
         val now = Instant.now().toEpochMilli()
-        val dx = width.toFloat() / (2 * numBands)
-        val heightFloat = height.toFloat()
+        val dx = (width - 2 * padding) / (2 * numBands)
+        val heightFloat = (height - 2 * padding).toFloat()
 
-        val offset = calcOffset(width, dx, errorInCents, now, lastT, lastOffset)
+        canvas.drawRect(padding, padding, width - padding, height - padding, lightColor)
+
+        val offset = calcOffset(width - 2 * padding.toInt(), dx, errorInCents, now, lastT, lastOffset)
 
         (0 until numBands + 1)
             .forEach { i ->
                 canvas.drawRect(
                     2 * i * dx + offset,
-                    0f,
+                    padding,
                     (2 * i + 1) * dx + offset,
-                    heightFloat,
+                    height - padding,
                     darkPaint
                 )
             }
@@ -83,6 +88,7 @@ class StrobeView(context: Context, attrs: AttributeSet?) : View(context, attrs) 
 
     companion object {
         const val scrollRate: Float = 0.05F // Percent of width per cent error per second
+        const val padding: Float = 10F
 
         fun calcOffset(
             widthPixels: Int,

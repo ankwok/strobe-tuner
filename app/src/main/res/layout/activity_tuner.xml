@@ -8,12 +8,24 @@
     android:onClick="onTunerClick"
     tools:context=".TunerActivity">
 
+    <ImageView
+        android:id="@+id/tuner_background"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:foregroundTint="@color/light_strobe"
+        android:scaleType="centerCrop"
+        android:src="@drawable/brushed_steel_light"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <TextView
         android:id="@+id/note_name"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_width="275dp"
+        android:layout_height="120dp"
+        android:background="@drawable/border_light"
         android:textAlignment="center"
         android:textSize="80sp"
+        android:theme="@style/NoteNameLight"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintLeft_toLeftOf="parent"
@@ -26,7 +38,8 @@
         android:layout_width="75dp"
         android:layout_height="100dp"
         android:layout_marginTop="16dp"
-        android:theme="@style/NumberPickerText"
+        android:background="@drawable/border_light"
+        android:theme="@style/NumberPickerTextLight"
         app:layout_constraintEnd_toStartOf="@+id/hz"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -56,6 +69,7 @@
         android:layout_height="50dp"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
+        android:background="@drawable/border_light"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
