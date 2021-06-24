@@ -7,6 +7,5 @@
     </style>
     <style name="NoteNameLight">
         <item name="android:textColorPrimary">@color/dark_strobe</item>
-        <item name="android:background">@color/light_strobe</item>
     </style>
 </resources>

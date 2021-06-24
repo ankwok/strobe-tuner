@@ -106,23 +106,23 @@ class TunerActivity : AppCompatActivity() {
 
         val verticalBias =
             if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) 0.35f
-            else 0.15f
-        val noteName = findViewById<TextView>(R.id.note_name)
-        val params = noteName.layoutParams as ConstraintLayout.LayoutParams
+            else 0.05f
+        val noteViewGroup = findViewById<ConstraintLayout>(R.id.note_view_group)
+        val params = noteViewGroup.layoutParams as ConstraintLayout.LayoutParams
         params.verticalBias = verticalBias
-        noteName.layoutParams = params
+        noteViewGroup.layoutParams = params
     }
 
     private fun textUpdater(pitchError: PitchError) {
         val prefs = PreferenceManager.getDefaultSharedPreferences(applicationContext)
+
         val noteName =
             when (prefs.getString(getString(R.string.note_name_pref), getString(R.string.note_name_default))) {
                 "solfege" -> pitchError.expected.pitch.solfegeName()
                 else -> pitchError.expected.pitch.englishName()
             }
         val noteView = findViewById<TextView>(R.id.note_name)
-        noteView.text = getString(R.string.note_name,
-            noteName, pitchError.expected.octave)
+        noteView.text = getString(R.string.note_name, noteName, pitchError.expected.octave)
 
         val freq = findViewById<TextView>(R.id.frequency)
         freq.text = getString(R.string.note_freq, pitchError.actualFreq)
