@@ -7,6 +7,8 @@ import android.util.AttributeSet
 import android.view.View
 import androidx.annotation.VisibleForTesting
 import com.akwok.strobetuner.R
+import java.lang.Float.max
+import java.lang.Float.min
 import java.time.Instant
 
 class StrobeView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
@@ -65,7 +67,6 @@ class StrobeView(context: Context, attrs: AttributeSet?) : View(context, attrs) 
     private fun drawStrobeAndUpdateState(canvas: Canvas) {
         val now = Instant.now().toEpochMilli()
         val dx = (width - 2 * padding) / (2 * numBands)
-        val heightFloat = (height - 2 * padding).toFloat()
 
         canvas.drawRect(padding, padding, width - padding, height - padding, lightColor)
 
@@ -73,13 +74,11 @@ class StrobeView(context: Context, attrs: AttributeSet?) : View(context, attrs) 
 
         (0 until numBands + 1)
             .forEach { i ->
-                canvas.drawRect(
-                    2 * i * dx + offset,
-                    padding,
-                    (2 * i + 1) * dx + offset,
-                    height - padding,
-                    darkPaint
-                )
+                val left = max(padding, padding + 2 * i * dx + offset)
+                val right = min(width - padding, padding + (2 * i + 1) * dx + offset)
+                if (left < right) {
+                    canvas.drawRect(left, padding, right, height - padding, darkPaint)
+                }
             }
 
         lastT = now
