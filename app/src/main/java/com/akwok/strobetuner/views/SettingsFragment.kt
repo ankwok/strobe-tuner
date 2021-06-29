@@ -2,6 +2,7 @@ package com.akwok.strobetuner.views
 
 import android.os.Bundle
 import android.text.InputType
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.preference.*
 import com.akwok.strobetuner.R
 import com.akwok.strobetuner.tuner.PitchHelper
@@ -24,6 +25,17 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
         val noiseRejection = findPreference<SeekBarPreference>(getString(R.string.noise_rejection_pref))!!
         noiseRejection.max = noiseRejectionMaxValue
+
+        val darkPref = findPreference<SwitchPreferenceCompat>(getString(R.string.dark_mode_pref))!!
+        darkPref.setOnPreferenceChangeListener { _, newValue ->
+            val isDark = newValue as Boolean
+            if (isDark) {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+            } else {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+            }
+            true
+        }
     }
 
     companion object {

@@ -5,11 +5,13 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.NumberPicker
 import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -36,6 +38,14 @@ class TunerActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_tuner)
+
+        val prefs = PreferenceManager.getDefaultSharedPreferences(applicationContext)
+        val isDark = prefs.getBoolean(getString(R.string.dark_mode_pref), false)
+        if (isDark) {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+        } else {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+        }
 
         getMicPermission()
         setupTextUpdater()
@@ -103,14 +113,6 @@ class TunerActivity : AppCompatActivity() {
         val obs = Observer<PitchError?> { err -> if (err != null) textUpdater(err) }
         val model: TunerModel by viewModels()
         model.pitchError.observe(this, obs)
-
-        val verticalBias =
-            if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) 0.35f
-            else 0.05f
-        val noteViewGroup = findViewById<ConstraintLayout>(R.id.note_view_group)
-        val params = noteViewGroup.layoutParams as ConstraintLayout.LayoutParams
-        params.verticalBias = verticalBias
-        noteViewGroup.layoutParams = params
     }
 
     private fun textUpdater(pitchError: PitchError) {

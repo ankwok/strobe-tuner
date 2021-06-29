@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="NumberPickerTextLight">
+    <style name="NumberPickerText">
         <item name="android:textSize">24sp</item>
         <item name="android:textColorPrimary">@color/dark_strobe</item>
-        <item name="android:background">@color/light_strobe</item>
+        <item name="android:background">@color/light_background</item>
     </style>
-    <style name="NoteNameLight">
+    <style name="NoteNameText">
         <item name="android:textColorPrimary">@color/dark_strobe</item>
     </style>
 </resources>
