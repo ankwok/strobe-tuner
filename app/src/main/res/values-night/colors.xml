@@ -8,7 +8,7 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="dark_strobe">#FF202020</color>
-    <color name="dark_background">#FF717274 </color>
+    <color name="dark_background">#FF39393A </color>
     <color name="light_background">#FFE3E4E9</color>
     <color name="light_strobe">#FFE1E1E1</color>
     <color name="light_2000k">#FFFF8A12</color>
