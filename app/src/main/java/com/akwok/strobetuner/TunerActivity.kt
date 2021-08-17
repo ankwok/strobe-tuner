@@ -53,8 +53,8 @@ class TunerActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
 
-        if (!hasMicPermission()) {
-            recreate() // TODO: This is bad from a UX point of view.
+        if (shouldRecreate()) {
+            recreate()
         }
 
         setupRefPicker()
@@ -66,6 +66,22 @@ class TunerActivity : AppCompatActivity() {
 
         val strobe = findViewById<StrobeView>(R.id.strobe_view)
         strobe.isRunning = true
+    }
+
+    private fun shouldRecreate(): Boolean {
+        val prefs = PreferenceManager.getDefaultSharedPreferences(applicationContext)
+        val showErr = prefs.getBoolean(getString(R.string.error_text_pref), false)
+        val visibility = if (showErr) TextView.VISIBLE else TextView.GONE
+        val errText = findViewById<TextView>(R.id.cents_error)
+        if (errText.visibility != visibility) {
+            return true
+        }
+
+        if (!hasMicPermission()) {
+            return true // TODO: This is bad from a UX point of view
+        }
+
+        return false
     }
 
     private fun setupThreshold() {
@@ -110,6 +126,14 @@ class TunerActivity : AppCompatActivity() {
         val obs = Observer<PitchError?> { err -> if (err != null) textUpdater(err) }
         val model: TunerModel by viewModels()
         model.pitchError.observe(this, obs)
+
+        val prefs = PreferenceManager.getDefaultSharedPreferences(applicationContext)
+        val showErr = prefs.getBoolean(getString(R.string.error_text_pref), false)
+        val visibility = if (showErr) TextView.VISIBLE else TextView.GONE
+        val freqText = findViewById<TextView>(R.id.frequency)
+        val errText = findViewById<TextView>(R.id.cents_error)
+        freqText.visibility = visibility
+        errText.visibility = visibility
     }
 
     private fun textUpdater(pitchError: PitchError) {

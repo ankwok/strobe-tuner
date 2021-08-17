@@ -27,4 +27,9 @@
         app:key="@string/dark_mode_pref"
         app:title="@string/dark_mode_title" />
 
+    <SwitchPreferenceCompat
+        app:key="@string/error_text_pref"
+        app:title="@string/error_text_title"
+        android:defaultValue="false"/>
+
 </PreferenceScreen>

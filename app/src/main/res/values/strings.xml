@@ -13,6 +13,7 @@
     <string name="note_name_pref">note_name_pref"</string>
     <string name="note_name_default">english</string>
     <string name="dark_mode_pref">dark_mode_pref</string>
+    <string name="error_text_pref">error_text_pref</string>
 
     <string name="reference_A_title">Reference A frequency</string>
     <string name="sync_header">Sync</string>
@@ -20,4 +21,5 @@
     <string name="noise_rejection_summary">Increase the detection threshold for sounds</string>
     <string name="note_name_title">Note name convention</string>
     <string name="dark_mode_title">Dark mode</string>
+    <string name="error_text_title">Show frequency and error text</string>
 </resources>
