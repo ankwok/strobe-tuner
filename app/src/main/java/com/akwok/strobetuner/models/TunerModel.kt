@@ -1,5 +1,6 @@
 package com.akwok.strobetuner.models
 
+import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -43,8 +44,11 @@ class TunerModel : ViewModel() {
                 val threshold = detectionThreshold.value ?: PitchDetector.defaultDetectionThreshold
 
                 if (ref != tuner.ref) {
+                    Log.d(this::class.simpleName, "Reference A changed from ${tuner.ref} to $ref")
                     tuner = PitchDetector(ref, threshold)
                 } else if (threshold != tuner.detectionThreshold) {
+                    Log.d(this::class.simpleName,
+                        "Updating noise threshold from ${tuner.detectionThreshold} to $threshold")
                     tuner = PitchDetector(ref, threshold)
                 }
 
