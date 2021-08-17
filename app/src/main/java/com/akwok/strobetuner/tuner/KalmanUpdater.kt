@@ -1,7 +1,5 @@
 package com.akwok.strobetuner.tuner
 
-import android.util.Log
-
 /**
  * One-dimensional Kalman filter with no process and measurement dynamics and time-invariant
  * process noise.
@@ -20,8 +18,6 @@ class KalmanUpdater(x0: KalmanState, private val Q: Double) {
         private set
 
     fun update(measurement: Double, variance: Double): KalmanState {
-        Log.d(this::class.simpleName, "Q = $Q; R = $variance")
-
         val predictionVariance = stateEstimate.P + Q
         val innovation = measurement - stateEstimate.x
         val kalmanGain = predictionVariance / (predictionVariance + variance)

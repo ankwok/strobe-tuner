@@ -1,10 +1,8 @@
 package com.akwok.strobetuner.tuner
 
-import android.util.Log
 import com.akwok.strobetuner.io.AudioData
 import org.jtransforms.fft.FloatFFT_1D
 import kotlin.math.sqrt
-import kotlin.system.measureTimeMillis
 
 class PitchDetector(val ref: Double, val detectionThreshold: Double = defaultDetectionThreshold) {
 
@@ -15,17 +13,7 @@ class PitchDetector(val ref: Double, val detectionThreshold: Double = defaultDet
     private var currentPitch: Pitch? = null
 
     fun detect(audioDat: AudioData): PitchError? {
-        val pitchError: PitchError?
-        val millis = measureTimeMillis {
-            pitchError = detectWithKalmanFilter(audioDat)
-        }
-
-        val sampleDuration = 1000 * audioDat.dat.size.toDouble() / audioDat.sampleRate
-        if (millis >= sampleDuration) {
-            Log.w(this::class.simpleName, "detect() took $millis ms which is longer than the sample period")
-        }
-
-        return pitchError
+        return detectWithKalmanFilter(audioDat)
     }
 
     private fun detectWithKalmanFilter(audioDat: AudioData): PitchError? {
@@ -37,7 +25,6 @@ class PitchDetector(val ref: Double, val detectionThreshold: Double = defaultDet
 
         if (currentPitch != measurement.expected)
         {
-            Log.d(this::class.simpleName, "Resetting Kalman filter from $currentPitch to ${measurement.expected}")
             val halfCentPeriod = measurement.actualPeriod * (1 - 1.0 / sqrt(PitchHelper.centRatio))
             kalmanFilter = KalmanUpdater(
                 KalmanState(measurement.actualPeriod, measurement.std * measurement.std),
