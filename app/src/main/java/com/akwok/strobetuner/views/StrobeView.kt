@@ -42,22 +42,30 @@ class StrobeView(context: Context, attrs: AttributeSet?) : View(context, attrs) 
         set(newValue) {
             field = newValue
 
-            if ((refreshThread == null || refreshThread?.isAlive == false) && newValue) {
-                val refresher = Runnable {
-                    val sleepDuration = (1000.0 / refreshRateHz).toLong()
-                    while (isRunning) {
-                        Thread.sleep(sleepDuration)
-                        postInvalidate()
-                    }
-                }
-
-                refreshThread = Thread(refresher)
-                refreshThread!!.start()
+            if (newValue) {
+                setupAnimationThread()
             }
         }
 
+    @Synchronized
+    private fun setupAnimationThread() {
+        if (refreshThread?.isAlive != true) {
+            val refresher = Runnable {
+                val sleepDuration = (1000.0 / refreshRateHz).toLong()
+                while (isRunning) {
+                    Thread.sleep(sleepDuration)
+                    postInvalidate()
+                }
+            }
+
+            refreshThread = Thread(refresher)
+            refreshThread!!.start()
+        }
+    }
+
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
+        setupAnimationThread()
 
         canvas.apply {
             drawStrobeAndUpdateState(this)
