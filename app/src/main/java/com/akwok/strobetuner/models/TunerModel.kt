@@ -12,7 +12,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class TunerModel : ViewModel() {
-    private val micReader = MicReader()
+    private val micReaderInitializer = lazy { MicReader() }
+    private val micReader: MicReader by micReaderInitializer
     private val sampleSize = 4096
     private var tuner = PitchDetector(PitchHelper.defaultReference.toDouble())
     private val audioData: AudioData = AudioData(FloatArray(sampleSize), MicReader.sampleRateInHz)
@@ -22,7 +23,11 @@ class TunerModel : ViewModel() {
         run()
     }
 
-    fun stopRecording() = micReader.stopRecording()
+    fun stopRecording() {
+        if (micReaderInitializer.isInitialized()) {
+            micReader.stopRecording()
+        }
+    }
 
     val pitchError: MutableLiveData<PitchError?> by lazy {
         MutableLiveData<PitchError?>()
