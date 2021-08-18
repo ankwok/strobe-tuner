@@ -1,19 +1,17 @@
 package com.akwok.strobetuner
 
 import android.Manifest
+import android.app.AlertDialog
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.content.res.Configuration
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.widget.NumberPicker
 import android.widget.TextView
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 import androidx.preference.PreferenceManager
@@ -28,7 +26,6 @@ import java.time.ZoneOffset
 import kotlin.math.roundToInt
 
 class TunerActivity : AppCompatActivity() {
-    private val REQUEST_MIC: Int = 0
 
     private var clickCount = 0
     private var clickStart = 0L
@@ -47,7 +44,6 @@ class TunerActivity : AppCompatActivity() {
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
         }
 
-        getMicPermission()
         setupTextUpdater()
         setupRefPicker()
         setupStrobe()
@@ -60,11 +56,8 @@ class TunerActivity : AppCompatActivity() {
             recreate()
         }
 
+        startRecordingSound()
         setupRefPicker()
-
-        val model: TunerModel by viewModels()
-        model.startRecording()
-
         setupThreshold()
 
         val strobe = findViewById<StrobeView>(R.id.strobe_view)
@@ -78,10 +71,6 @@ class TunerActivity : AppCompatActivity() {
         val errText = findViewById<TextView>(R.id.cents_error)
         if (errText.visibility != visibility) {
             return true
-        }
-
-        if (!hasMicPermission()) {
-            return true // TODO: This is bad from a UX point of view
         }
 
         return false
@@ -143,7 +132,10 @@ class TunerActivity : AppCompatActivity() {
         val prefs = PreferenceManager.getDefaultSharedPreferences(applicationContext)
 
         val noteName =
-            when (prefs.getString(getString(R.string.note_name_pref), getString(R.string.note_name_default))) {
+            when (prefs.getString(
+                getString(R.string.note_name_pref),
+                getString(R.string.note_name_default)
+            )) {
                 "solfege" -> pitchError.expected.pitch.solfegeName()
                 else -> pitchError.expected.pitch.englishName()
             }
@@ -194,19 +186,41 @@ class TunerActivity : AppCompatActivity() {
         model.pitchError.observe(this, obs)
     }
 
-    private fun getMicPermission() {
-        if (!hasMicPermission()) {
-            val permissions = arrayOf(Manifest.permission.RECORD_AUDIO, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-            ActivityCompat.requestPermissions(this, permissions, REQUEST_MIC)
+    private val requestPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted: Boolean ->
+            if (isGranted) {
+                val model: TunerModel by viewModels()
+                model.startRecording()
+            } else {
+                finishAndRemoveTask()
+            }
         }
+
+    private val micPermissionsDialog by lazy {
+        AlertDialog.Builder(this)
+            .setMessage(getString(R.string.mic_permissions_text))
+            .setPositiveButton(getString(R.string.ok)) { _, _ ->
+                requestPermissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
+            }
+            .setNegativeButton(getString(R.string.no)) { _, _ -> finishAndRemoveTask() }
+            .create()
     }
 
-    private fun hasMicPermission(): Boolean =
-        ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED
+    private fun startRecordingSound() {
+        if (ContextCompat.checkSelfPermission(
+                applicationContext,
+                Manifest.permission.RECORD_AUDIO
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+            val model: TunerModel by viewModels()
+            model.startRecording()
+        } else {
+            micPermissionsDialog.show()
+        }
+    }
 
     private fun gotoSample() {
         val intent = Intent(this, SampleActivity::class.java)
         startActivity(intent)
     }
-
 }
