@@ -42,7 +42,7 @@ class StrobeView(context: Context, attrs: AttributeSet?) : View(context, attrs) 
     }
 
     fun start() {
-        if (!animator.isRunning) {
+        if (animator.isPaused || !animator.isRunning || !animator.isStarted) {
             animator.start()
             animator.currentPlayTime = animatorClock
         }
