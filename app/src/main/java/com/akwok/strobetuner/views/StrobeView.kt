@@ -1,15 +1,14 @@
 package com.akwok.strobetuner.views
 
+import android.animation.TimeAnimator
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.util.AttributeSet
 import android.view.View
-import androidx.annotation.VisibleForTesting
 import com.akwok.strobetuner.R
 import java.lang.Float.max
 import java.lang.Float.min
-import java.time.Instant
 
 class StrobeView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
     constructor(context: Context) : this(context, null)
@@ -29,43 +28,33 @@ class StrobeView(context: Context, attrs: AttributeSet?) : View(context, attrs) 
         style = Paint.Style.FILL_AND_STROKE
     }
 
-    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    var lastT: Long = Instant.now().toEpochMilli()
+    private var lastOffset: Float = 0f
+    private var deltaT: Long = 0L
+    private var animatorClock: Long = 0
 
-    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    var lastOffset: Float = 0f
+    private val animator = TimeAnimator()
 
-    private var refreshThread: Thread? = null
-    private val refreshRateHz = 60
-
-    var isRunning: Boolean = false
-        set(newValue) {
-            field = newValue
-
-            if (newValue) {
-                setupAnimationThread()
-            }
+    init {
+        animator.setTimeListener { _, _, deltaTime ->
+            deltaT = deltaTime
+            postInvalidate()
         }
+    }
 
-    @Synchronized
-    private fun setupAnimationThread() {
-        if (refreshThread?.isAlive != true) {
-            val refresher = Runnable {
-                val sleepDuration = (1000.0 / refreshRateHz).toLong()
-                while (isRunning) {
-                    Thread.sleep(sleepDuration)
-                    postInvalidate()
-                }
-            }
-
-            refreshThread = Thread(refresher)
-            refreshThread!!.start()
+    fun start() {
+        if (!animator.isRunning) {
+            animator.start()
+            animator.currentPlayTime = animatorClock
         }
+    }
+
+    fun pause() {
+        animatorClock = animator.currentPlayTime
+        animator.pause()
     }
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
-        setupAnimationThread()
 
         canvas.apply {
             drawStrobeAndUpdateState(this)
@@ -73,12 +62,11 @@ class StrobeView(context: Context, attrs: AttributeSet?) : View(context, attrs) 
     }
 
     private fun drawStrobeAndUpdateState(canvas: Canvas) {
-        val now = Instant.now().toEpochMilli()
         val dx = (width - 2 * padding) / (2 * numBands)
 
         canvas.drawRect(padding, padding, width - padding, height - padding, lightColor)
 
-        val offset = calcOffset(width - 2 * padding.toInt(), dx, errorInCents, now, lastT, lastOffset)
+        val offset = calcOffset(width - 2 * padding.toInt(), dx, errorInCents, deltaT, lastOffset)
 
         (0 until numBands + 1)
             .forEach { i ->
@@ -89,31 +77,28 @@ class StrobeView(context: Context, attrs: AttributeSet?) : View(context, attrs) 
                 }
             }
 
-        lastT = now
         lastOffset = offset
     }
 
     companion object {
-        const val scrollRate: Float = 0.05F // Percent of width per cent error per second
-        const val padding: Float = 10F
+        private const val scrollRate: Float = 0.05F // Percent of width per cent error per second
+        const val padding: Float = 10f
 
         fun calcOffset(
             widthPixels: Int,
             modulo: Float,
             errorInCents: Float,
-            nowMillis: Long,
-            lastMillis: Long,
-            lastOffset: Float): Float {
-
+            deltaMillis: Long,
+            lastOffset: Float
+        ): Float {
             val rate = scrollRate * errorInCents * widthPixels
-            val deltaSec = (nowMillis - lastMillis).toFloat() / 1000f
+            val deltaSec = deltaMillis.toFloat() / 1000f
             val newOffset = lastOffset + rate * deltaSec
-
             return when {
-                newOffset > modulo -> newOffset - 2*modulo
-                newOffset < -modulo -> newOffset + 2*modulo
-                else -> newOffset
-            }
+                        newOffset > modulo -> newOffset - 2 * modulo
+                        newOffset < -modulo -> newOffset + 2 * modulo
+                        else -> newOffset
+                    }
         }
     }
 }

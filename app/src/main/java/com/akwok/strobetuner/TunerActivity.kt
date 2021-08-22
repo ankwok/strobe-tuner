@@ -61,7 +61,7 @@ class TunerActivity : AppCompatActivity() {
         setupThreshold()
 
         val strobe = findViewById<StrobeView>(R.id.strobe_view)
-        strobe.isRunning = true
+        strobe.start()
     }
 
     private fun shouldRecreate(): Boolean {
@@ -95,7 +95,7 @@ class TunerActivity : AppCompatActivity() {
         model.stopRecording()
 
         val strobe = findViewById<StrobeView>(R.id.strobe_view)
-        strobe.isRunning = false
+        strobe.pause()
     }
 
     fun onTunerClick(view: View) {
