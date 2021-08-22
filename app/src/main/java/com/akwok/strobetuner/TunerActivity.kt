@@ -4,7 +4,6 @@ import android.Manifest
 import android.app.AlertDialog
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.content.res.Configuration
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -14,8 +13,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 import androidx.preference.PreferenceManager
@@ -99,6 +96,7 @@ class TunerActivity : AppCompatActivity() {
         model.stopRecording()
 
         val strobe = findViewById<StrobeView>(R.id.strobe_view)
+        Log.d(this::class.simpleName, "Pausing strobe from Activity")
         strobe.pause()
     }
 
@@ -183,6 +181,7 @@ class TunerActivity : AppCompatActivity() {
         val strobe = findViewById<StrobeView>(R.id.strobe_view)
 
         val obs = Observer<PitchError?> { err ->
+            Log.d(this::class.simpleName, "Observing errorInCents = ${err?.errorInCents}")
             strobe.errorInCents = err?.errorInCents?.toFloat() ?: 0f
         }
 

@@ -5,6 +5,7 @@ import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.util.AttributeSet
+import android.util.Log
 import android.view.View
 import com.akwok.strobetuner.R
 import java.lang.Float.max
@@ -42,13 +43,18 @@ class StrobeView(context: Context, attrs: AttributeSet?) : View(context, attrs) 
     }
 
     fun start() {
+        Log.d(this::class.simpleName,
+            "animator state: isPaused=${animator.isPaused}, isStarted=${animator.isStarted}," +
+                    " isRunning=${animator.isRunning}")
         if (!animator.isRunning) {
+            Log.d(this::class.simpleName, "Starting animator")
             animator.start()
             animator.currentPlayTime = animatorClock
         }
     }
 
     fun pause() {
+        Log.d(this::class.simpleName, "Pausing animator")
         animatorClock = animator.currentPlayTime
         animator.pause()
     }
