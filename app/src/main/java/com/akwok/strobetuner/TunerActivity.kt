@@ -182,6 +182,7 @@ class TunerActivity : AppCompatActivity() {
 
         val obs = Observer<PitchError?> { err ->
             Log.d(this::class.simpleName, "Observing errorInCents = ${err?.errorInCents}")
+            strobe.start()
             strobe.errorInCents = err?.errorInCents?.toFloat() ?: 0f
         }
 
@@ -192,8 +193,7 @@ class TunerActivity : AppCompatActivity() {
     private val requestPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted: Boolean ->
             if (isGranted) {
-                val model: TunerModel by viewModels()
-                model.startRecording()
+                recreate()
             } else {
                 finishAndRemoveTask()
             }

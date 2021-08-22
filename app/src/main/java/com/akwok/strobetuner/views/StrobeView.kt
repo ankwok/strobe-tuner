@@ -46,7 +46,7 @@ class StrobeView(context: Context, attrs: AttributeSet?) : View(context, attrs) 
         Log.d(this::class.simpleName,
             "animator state: isPaused=${animator.isPaused}, isStarted=${animator.isStarted}," +
                     " isRunning=${animator.isRunning}")
-        if (!animator.isRunning) {
+        if (animator.isPaused || !animator.isRunning || !animator.isStarted) {
             Log.d(this::class.simpleName, "Starting animator")
             animator.start()
             animator.currentPlayTime = animatorClock
