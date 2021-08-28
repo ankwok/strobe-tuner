@@ -21,3 +21,17 @@ Here's a brief overview of how it works:
    compute the error in frequency and [cents](https://en.wikipedia.org/wiki/Cent_(music)).
 1. Update the frame of the strobe graphic as a function of the elapsed time from the previous
    refresh and the error in cents.
+   
+
+Privacy Policy
+==============
+
+The Strobe Tuner app requires the use of your device's microphone to record audio.  This audio data
+is not persisted in any permanent storage and is processed on your device.
+
+
+License
+=======
+
+This project is covered by the GNU General Public License v3.  See the 
+[LICENSE file](https://github.com/ankwok/strobe-tuner/blob/master/LICENSE).
