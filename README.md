@@ -27,7 +27,8 @@ Privacy Policy
 ==============
 
 The Strobe Tuner app requires the use of your device's microphone to record audio.  This audio data
-is not persisted in any permanent storage and is processed on your device.
+is not persisted in any permanent storage and is processed on your device.  No other personally
+identifiable information is used by the Strobe Tuner app.
 
 
 License
