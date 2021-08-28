@@ -8,9 +8,9 @@ android {
 
     defaultConfig {
         applicationId "com.akwok.strobetuner"
-        minSdkVersion 26
+        minSdkVersion 21
         targetSdkVersion 31
-        versionCode 5
+        versionCode 6
         versionName "0.1"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
