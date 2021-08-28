@@ -2,7 +2,6 @@ package com.akwok.strobetuner
 
 import android.Manifest
 import android.app.AlertDialog
-import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.View
@@ -21,16 +20,9 @@ import com.akwok.strobetuner.tuner.PitchError
 import com.akwok.strobetuner.tuner.PitchHelper
 import com.akwok.strobetuner.views.SettingsFragment
 import com.akwok.strobetuner.views.StrobeView
-import java.time.LocalDateTime
-import java.time.ZoneOffset
 import kotlin.math.roundToInt
 
 class TunerActivity : AppCompatActivity() {
-
-    private var clickCount = 0
-    private var clickStart = 0L
-    private val clickStartTtl = 5L
-    private val clicksToSample = 6
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -96,20 +88,6 @@ class TunerActivity : AppCompatActivity() {
 
         val strobe = findViewById<StrobeView>(R.id.strobe_view)
         strobe.pause()
-    }
-
-    fun onTunerClick(view: View) {
-        val now = LocalDateTime.now().toEpochSecond(ZoneOffset.UTC)
-        if (now - clickStart > clickStartTtl) {
-            clickStart = now
-            clickCount = 1
-        } else {
-            clickCount++
-        }
-
-        if (clickCount >= clicksToSample) {
-            gotoSample()
-        }
     }
 
     fun onSettingsClick(view: View) = SettingsActivity.gotoSettings(this)
@@ -217,10 +195,5 @@ class TunerActivity : AppCompatActivity() {
         } else {
             micPermissionsDialog.show()
         }
-    }
-
-    private fun gotoSample() {
-        val intent = Intent(this, SampleActivity::class.java)
-        startActivity(intent)
     }
 }
