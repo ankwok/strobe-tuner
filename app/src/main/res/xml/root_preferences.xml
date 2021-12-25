@@ -30,6 +30,6 @@
     <SwitchPreferenceCompat
         app:key="@string/error_text_pref"
         app:title="@string/error_text_title"
-        android:defaultValue="false"/>
+        android:defaultValue="true"/>
 
 </PreferenceScreen>
