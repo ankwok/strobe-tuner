@@ -8,7 +8,7 @@ android {
 
     defaultConfig {
         applicationId "com.akwok.strobetuner"
-        minSdkVersion 21
+        minSdkVersion 23
         targetSdkVersion 33
         versionCode 7
         versionName "0.1"
