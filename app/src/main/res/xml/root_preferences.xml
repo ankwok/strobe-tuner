@@ -4,7 +4,7 @@
     <EditTextPreference
         app:key="@string/ref_A_pref"
         android:inputType="number"
-        android:digits="0123456789"/>
+        android:digits="0123456789" />
 
     <SeekBarPreference
         android:id="@+id/noise_rejection"

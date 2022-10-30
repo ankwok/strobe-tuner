@@ -13,18 +13,10 @@ class SettingsFragment : PreferenceFragmentCompat() {
         setPreferencesFromResource(R.xml.root_preferences, rootKey)
 
         val refAPref = findPreference<EditTextPreference>(getString(R.string.ref_A_pref))!!
-        refAPref.title = getString(R.string.reference_A_title).format(minRefFreq, maxRefFreq)
-        refAPref.summaryProvider = Preference.SummaryProvider<EditTextPreference> {
-            val ref = PreferenceManager
-                .getDefaultSharedPreferences(requireContext())
-                .getString(
-                    getString(R.string.ref_A_pref),
-                    PitchHelper.defaultReference.toString()
-                )
-                ?.toIntOrNull()
-                ?: PitchHelper.defaultReference
-            "$ref Hz"
-        }
+        refAPref.title = getString(R.string.reference_A_title)
+        refAPref.summaryProvider = Preference.SummaryProvider<EditTextPreference> { "${getRefFreq()} Hz" }
+        refAPref.dialogTitle = getString(R.string.reference_A_dialog_title).format(minRefFreq, maxRefFreq)
+        refAPref.text = getRefFreq().toString()
         refAPref.setOnBindEditTextListener { et ->
             et.inputType = InputType.TYPE_CLASS_NUMBER
         }
@@ -33,7 +25,8 @@ class SettingsFragment : PreferenceFragmentCompat() {
             intVal in minRefFreq..maxRefFreq
         }
 
-        val noiseRejection = findPreference<SeekBarPreference>(getString(R.string.noise_rejection_pref))!!
+        val noiseRejection =
+            findPreference<SeekBarPreference>(getString(R.string.noise_rejection_pref))!!
         noiseRejection.max = noiseRejectionMaxValue
 
         val darkPref = findPreference<SwitchPreferenceCompat>(getString(R.string.dark_mode_pref))!!
@@ -46,6 +39,17 @@ class SettingsFragment : PreferenceFragmentCompat() {
             }
             true
         }
+    }
+
+    private fun getRefFreq(): Int {
+        return PreferenceManager
+            .getDefaultSharedPreferences(requireContext())
+            .getString(
+                getString(R.string.ref_A_pref),
+                PitchHelper.defaultReference.toString()
+            )
+            ?.toIntOrNull()
+            ?: PitchHelper.defaultReference
     }
 
     companion object {
