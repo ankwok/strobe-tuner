@@ -10,7 +10,7 @@ android {
         applicationId "com.akwok.strobetuner"
         minSdkVersion 23
         targetSdkVersion 33
-        versionCode 11
+        versionCode 12
         versionName "0.2"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
