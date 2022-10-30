@@ -138,17 +138,27 @@ class TunerActivity : AppCompatActivity() {
         val model: TunerModel by viewModels()
 
         val prefs = PreferenceManager.getDefaultSharedPreferences(applicationContext)
-        val savedRef = prefs
-            .getString(getString(R.string.ref_A_pref), PitchHelper.defaultReference.toString())
-            ?.toIntOrNull()
-        picker.value = savedRef!!
-        model.referenceA.postValue(savedRef)
+
+        // TODO: Remove the double fetching after everyone has upgraded their version
+        try {
+            val savedRef = prefs
+                .getInt(getString(R.string.ref_A_pref), PitchHelper.defaultReference)
+            picker.value = savedRef
+            model.referenceA.postValue(savedRef)
+        } catch (e: ClassCastException) {
+            val savedRefStr = prefs
+                .getString(getString(R.string.ref_A_pref), PitchHelper.defaultReference.toString())
+                ?.toIntOrNull()
+                ?: PitchHelper.defaultReference
+            picker.value = savedRefStr
+            model.referenceA.postValue(savedRefStr)
+        }
 
         picker.setOnValueChangedListener { _, _, newVal ->
             model.referenceA.postValue(newVal)
 
             val editor = prefs.edit()
-            editor.putString(getString(R.string.ref_A_pref), newVal.toString())
+            editor.putInt(getString(R.string.ref_A_pref), newVal)
             editor.apply()
         }
     }
