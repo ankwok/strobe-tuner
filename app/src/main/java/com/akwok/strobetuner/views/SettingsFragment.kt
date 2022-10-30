@@ -15,7 +15,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
         val refAPref = findPreference<EditTextPreference>(getString(R.string.ref_A_pref))!!
         refAPref.summaryProvider = Preference.SummaryProvider<EditTextPreference> {
             val ref = PreferenceManager
-                .getDefaultSharedPreferences(context)
+                .getDefaultSharedPreferences(requireContext())
                 .getString(getString(R.string.ref_A_pref), PitchHelper.defaultReference.toString())!!
             "$ref Hz"
         }
