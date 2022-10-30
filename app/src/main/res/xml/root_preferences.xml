@@ -3,8 +3,8 @@
 
     <EditTextPreference
         app:key="@string/ref_A_pref"
-        app:title="@string/reference_A_title"
-        />
+        android:inputType="number"
+        android:digits="0123456789"/>
 
     <SeekBarPreference
         android:id="@+id/noise_rejection"
