@@ -3,8 +3,7 @@ package com.akwok.strobetuner.tuner
 import kotlin.math.pow
 
 object PitchHelper {
-    val defaultReference: Int = 440
-    val halfnoteRatio: Double = (2.0).pow(1.0 / 12.0)
+    const val defaultReference: Int = 440
     val centRatio: Double = (2.0).pow(1.0 / 1200.0)
 
     fun getFrequencies(ref: Double): List<Pitch> {

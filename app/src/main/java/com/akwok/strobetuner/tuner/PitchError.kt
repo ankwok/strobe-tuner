@@ -10,8 +10,6 @@ data class PitchError(val expected: Pitch, val actualPeriod: Double, val std: Do
         1.0 / (actualPeriod - std)
     )
 
-    val deltaFreq: Double = actualFreq - expected.freq
-
     val errorInCents: Double by lazy {
         // f * r**x = y
         // log(f) + x log(r) = log(y)
