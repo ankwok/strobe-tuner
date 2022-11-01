@@ -4,19 +4,24 @@ import android.os.Bundle
 import android.text.InputType
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.preference.*
+import com.akwok.strobetuner.PreferencesService
 import com.akwok.strobetuner.R
-import com.akwok.strobetuner.tuner.PitchHelper
 
 class SettingsFragment : PreferenceFragmentCompat() {
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.root_preferences, rootKey)
 
+        val preferencesService = PreferencesService(requireContext())
+
         val refAPref = findPreference<EditTextPreference>(getString(R.string.ref_A_pref))!!
         refAPref.title = getString(R.string.reference_A_title)
-        refAPref.summaryProvider = Preference.SummaryProvider<EditTextPreference> { "${getRefFreq()} Hz" }
+        refAPref.summaryProvider = Preference.SummaryProvider<EditTextPreference> {
+            val refFreq = preferencesService.getReferenceFreq()
+            "$refFreq Hz"
+        }
         refAPref.dialogTitle = getString(R.string.reference_A_dialog_title).format(minRefFreq, maxRefFreq)
-        refAPref.text = getRefFreq().toString()
+        refAPref.text = preferencesService.getReferenceFreq().toString()
         refAPref.setOnBindEditTextListener { et ->
             et.inputType = InputType.TYPE_CLASS_NUMBER
         }
@@ -39,17 +44,6 @@ class SettingsFragment : PreferenceFragmentCompat() {
             }
             true
         }
-    }
-
-    private fun getRefFreq(): Int {
-        return PreferenceManager
-            .getDefaultSharedPreferences(requireContext())
-            .getString(
-                getString(R.string.ref_A_pref),
-                PitchHelper.defaultReference.toString()
-            )
-            ?.toIntOrNull()
-            ?: PitchHelper.defaultReference
     }
 
     companion object {

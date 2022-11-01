@@ -13,24 +13,23 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
-import androidx.preference.PreferenceManager
 import com.akwok.strobetuner.models.TunerModel
-import com.akwok.strobetuner.tuner.PitchDetector
 import com.akwok.strobetuner.tuner.PitchError
-import com.akwok.strobetuner.tuner.PitchHelper
 import com.akwok.strobetuner.views.SettingsFragment
 import com.akwok.strobetuner.views.StrobeView
 import kotlin.math.roundToInt
 
 class TunerActivity : AppCompatActivity() {
 
+    private lateinit var preferencesService: PreferencesService
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_tuner)
 
-        val prefs = PreferenceManager.getDefaultSharedPreferences(applicationContext)
-        val isDark = prefs.getBoolean(getString(R.string.dark_mode_pref), false)
-        if (isDark) {
+        preferencesService = PreferencesService(applicationContext)
+
+        if (preferencesService.isDarkMode()) {
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
         } else {
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
@@ -57,27 +56,15 @@ class TunerActivity : AppCompatActivity() {
     }
 
     private fun shouldRecreate(): Boolean {
-        val prefs = PreferenceManager.getDefaultSharedPreferences(applicationContext)
-        val showErr = prefs.getBoolean(getString(R.string.error_text_pref), false)
-        val visibility = if (showErr) TextView.VISIBLE else TextView.GONE
+        val visibility = if (preferencesService.shouldShowErr()) TextView.VISIBLE else TextView.GONE
         val errText = findViewById<TextView>(R.id.cents_error)
-        if (errText.visibility != visibility) {
-            return true
-        }
 
-        return false
+        return errText.visibility != visibility
     }
 
     private fun setupThreshold() {
         val model: TunerModel by viewModels()
-        val prefs = PreferenceManager.getDefaultSharedPreferences(applicationContext)
-        val savedThreshold = prefs
-            .getInt(getString(R.string.noise_rejection_pref), -1)
-            .toDouble()
-        val convertedThreshold =
-            if (savedThreshold > 0) savedThreshold * PitchDetector.maxDetectionThreshold / SettingsFragment.noiseRejectionMaxValue
-            else PitchDetector.defaultDetectionThreshold
-        model.detectionThreshold.postValue(convertedThreshold)
+        model.detectionThreshold.postValue(preferencesService.getDetectionThreshold())
     }
 
     override fun onPause() {
@@ -97,9 +84,7 @@ class TunerActivity : AppCompatActivity() {
         val model: TunerModel by viewModels()
         model.pitchError.observe(this, obs)
 
-        val prefs = PreferenceManager.getDefaultSharedPreferences(applicationContext)
-        val showErr = prefs.getBoolean(getString(R.string.error_text_pref), false)
-        val visibility = if (showErr) TextView.VISIBLE else TextView.GONE
+        val visibility = if (preferencesService.shouldShowErr()) TextView.VISIBLE else TextView.GONE
         val freqText = findViewById<TextView>(R.id.frequency)
         val errText = findViewById<TextView>(R.id.cents_error)
         freqText.visibility = visibility
@@ -107,13 +92,8 @@ class TunerActivity : AppCompatActivity() {
     }
 
     private fun textUpdater(pitchError: PitchError) {
-        val prefs = PreferenceManager.getDefaultSharedPreferences(applicationContext)
-
         val noteName =
-            when (prefs.getString(
-                getString(R.string.note_name_pref),
-                getString(R.string.note_name_default)
-            )) {
+            when (preferencesService.getNoteConvention()) {
                 "solfege" -> pitchError.expected.pitch.solfegeName()
                 else -> pitchError.expected.pitch.englishName()
             }
@@ -137,21 +117,13 @@ class TunerActivity : AppCompatActivity() {
 
         val model: TunerModel by viewModels()
 
-        val prefs = PreferenceManager.getDefaultSharedPreferences(applicationContext)
-
-        val savedRef = prefs
-            .getString(getString(R.string.ref_A_pref), PitchHelper.defaultReference.toString())
-            ?.toIntOrNull()
-            ?: PitchHelper.defaultReference
+        val savedRef = preferencesService.getReferenceFreq()
         picker.value = savedRef
         model.referenceA.postValue(savedRef)
 
         picker.setOnValueChangedListener { _, _, newVal ->
             model.referenceA.postValue(newVal)
-
-            val editor = prefs.edit()
-            editor.putString(getString(R.string.ref_A_pref), newVal.toString())
-            editor.apply()
+            preferencesService.setReferenceFreq(newVal)
         }
     }
 
