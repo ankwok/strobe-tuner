@@ -64,24 +64,29 @@ class PitchDetector(val ref: Double, val detectionThreshold: Double = defaultDet
         val dt = 1.0 / audioDat.sampleRate
         val audio = audioDat.dat
 
-        val zeros = (0 until (audio.size - 1))
-            .asSequence()
-            .map { i -> Point(dt * i, audio[i].toDouble()) to Point(dt * (i + 1), audio[i + 1].toDouble()) }
-            .filter { pair -> pair.first.x > offset && pair.second.x <= offset } // get crossings from above
-            .map { pair ->
+        val zeros = emptyList<Double>().toMutableList()
+        for (i in 0 until (audio.size - 1)) {
+            val t1 = dt * i
+            val x1 = audio[i].toDouble()
+            val x2 = audio[i + 1].toDouble()
+
+            if (x1 > offset && x2 <= offset) {
                 // y - y1 = m(x - x1)
                 // ==> x = (y - y1) / m + x1
-                val slope = (pair.second.x - pair.first.x) / dt
-                (offset - pair.first.x) / slope + pair.first.t
+                val slope = (x2 - x1) / dt
+                zeros.add((offset - x1) / slope + t1)
             }
+        }
 
-        val deltas = zeros
-            .zipWithNext { first, second -> second - first }
-            .toList()
-        val avg = deltas.average() // twice because there are (hopefully only) two zero crossings per period
-        val variance = deltas
-            .map { d -> (d - avg) * (d - avg) }
-            .average()
+        val deltas = List(zeros.size - 1) { i -> zeros[i + 1] - zeros[i] }
+        val avg = deltas.average()
+
+        var variance = 0.0
+        for (del in deltas) {
+            val diff = del - avg
+            variance += diff * diff
+        }
+        variance /= deltas.size
 
         return MeanStd(avg, sqrt(variance))
     }
@@ -123,8 +128,6 @@ class PitchDetector(val ref: Double, val detectionThreshold: Double = defaultDet
         }
         return pitches[right]
     }
-
-    private data class Point(val t: Double, val x: Double)
 
     private data class PitchErr(val pitch: Pitch, val ci: Interval) : Comparable<PitchErr> {
         override fun compareTo(other: PitchErr): Int = when {
