@@ -7,34 +7,39 @@ import kotlin.math.max
 
 class MicReader : AudioReader {
 
-    private val minBufferSize = AudioRecord
-        .getMinBufferSize(sampleRateInHz, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_FLOAT)
-
-    private val bufferSize = max(minBufferSize, sampleRateInHz * 4 * 4)
-
-    private val audioRecorder = AudioRecord.Builder()
-        .setAudioFormat(AudioFormat.Builder()
-            .setSampleRate(sampleRateInHz)
-            .setEncoding(AudioFormat.ENCODING_PCM_FLOAT)
-            .setChannelMask(AudioFormat.CHANNEL_IN_MONO)
-            .build())
-        .setAudioSource(MediaRecorder.AudioSource.MIC)
-        .setBufferSizeInBytes(bufferSize)
-        .build()
+    private val audioRecorder = try {
+        AudioRecord(
+            MediaRecorder.AudioSource.MIC,
+            sampleRateInHz,
+            channelConfig,
+            audioFormat,
+            bufferSize
+        )
+    } catch (e: SecurityException) {
+        throw e // To make the IDE happy...
+    }
 
     override fun startRecording() = audioRecorder.startRecording()
 
-    override fun stopRecording() = audioRecorder.stop()
-
-    val isRecording: Boolean
-        get() = audioRecorder.recordingState == AudioRecord.RECORDSTATE_RECORDING
+    override fun stopRecording() = audioRecorder.release()
 
     override fun read(buf: AudioData): AudioData {
         audioRecorder.read(buf.dat, 0, buf.dat.size, AudioRecord.READ_BLOCKING)
         return buf
     }
 
+    override fun getBufferInstance(sampleSize: Int): AudioData =
+        AudioData(FloatArray(sampleSize), sampleRateInHz)
+
     companion object {
-        const val sampleRateInHz = 44100
+        private const val sampleRateInHz = 44100
+        private const val channelConfig = AudioFormat.CHANNEL_IN_MONO
+        private const val audioFormat = AudioFormat.ENCODING_PCM_FLOAT
+
+        private val minBufferSize = AudioRecord.getMinBufferSize(
+            sampleRateInHz, channelConfig, audioFormat)
+
+        // 4 second buffer since each sample is a 4-byte float
+        private val bufferSize = max(minBufferSize, sampleRateInHz * 4 * 4)
     }
 }
