@@ -8,13 +8,18 @@ import kotlin.math.max
 class MicReader : AudioReader {
 
     private val audioRecorder = try {
-        AudioRecord(
+        val ar = AudioRecord(
             MediaRecorder.AudioSource.MIC,
             sampleRateInHz,
             channelConfig,
             audioFormat,
             bufferSize
         )
+
+        if (ar.state == AudioRecord.STATE_UNINITIALIZED)
+            throw InstantiationException("AudioRecord failed to initialize")
+
+        ar
     } catch (e: SecurityException) {
         throw e // To make the IDE happy...
     }
