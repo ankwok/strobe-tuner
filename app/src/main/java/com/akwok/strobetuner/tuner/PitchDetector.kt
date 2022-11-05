@@ -78,6 +78,10 @@ class PitchDetector(val ref: Double, val detectionThreshold: Double = defaultDet
             }
         }
 
+        if (zeros.isEmpty()) {
+            return MeanStd(Double.NaN, Double.NaN)
+        }
+
         val deltas = List(zeros.size - 1) { i -> zeros[i + 1] - zeros[i] }
         val avg = deltas.average()
 

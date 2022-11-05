@@ -93,6 +93,24 @@ class PitchDetectorUnitTest {
         cases.forEach { pair -> testDetect(pair.first, pair.second) }
     }
 
+    @Test
+    fun `doesn't crash with bad input`() {
+        val testCases = listOf(
+            emptyArray<Float>().toFloatArray(),
+            (0 until 4096).map { 1.42f }.toFloatArray(), // constant signal
+        )
+
+        testCases.forEach { case ->
+            val audioData = AudioData(case, sampleRate)
+            val detector = PitchDetector(440.0)
+
+            val err = detector.detect(audioData)
+
+            Assert.assertNull(err)
+        }
+
+    }
+
     private fun testDetect(file: String, expectedFreq: Double) {
         val str = javaClass.getResourceAsStream(file)
 
