@@ -5,23 +5,28 @@ import android.app.AlertDialog
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.View
+import android.view.ViewGroup
+import android.view.ViewGroup.MarginLayoutParams
 import android.widget.NumberPicker
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 import com.akwok.strobetuner.models.TunerModel
 import com.akwok.strobetuner.tuner.PitchError
 import com.akwok.strobetuner.views.SettingsFragment
 import com.akwok.strobetuner.views.StrobeView
+import com.akwok.strobetuner.views.TunerView
 import kotlin.math.roundToInt
 
 class TunerActivity : AppCompatActivity() {
 
     private lateinit var preferencesService: PreferencesService
+    private lateinit var tunerView: TunerView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,8 +56,7 @@ class TunerActivity : AppCompatActivity() {
         setupRefPicker()
         setupThreshold()
 
-        val strobe = findViewById<StrobeView>(R.id.strobe_view)
-        strobe.start()
+        tunerView.start()
     }
 
     private fun shouldRecreate(): Boolean {
@@ -73,8 +77,7 @@ class TunerActivity : AppCompatActivity() {
         val model: TunerModel by viewModels()
         model.stopRecording()
 
-        val strobe = findViewById<StrobeView>(R.id.strobe_view)
-        strobe.pause()
+        tunerView.pause()
     }
 
     fun onSettingsClick(view: View) = SettingsActivity.gotoSettings(this)
@@ -106,8 +109,7 @@ class TunerActivity : AppCompatActivity() {
         val centsErr = findViewById<TextView>(R.id.cents_error)
         centsErr.text = getString(R.string.cents_err, pitchError.errorInCents.roundToInt())
 
-        val strobe = findViewById<StrobeView>(R.id.strobe_view)
-        strobe.numBands = 2 * (pitchError.expected.octave + 1)
+        tunerView.octave = pitchError.expected.octave
     }
 
     private fun setupRefPicker() {
@@ -128,11 +130,20 @@ class TunerActivity : AppCompatActivity() {
     }
 
     private fun setupStrobe() {
-        val strobe = findViewById<StrobeView>(R.id.strobe_view)
+        val layout = findViewById<ConstraintLayout>(R.id.tuner_layout)
+
+        tunerView = StrobeView(applicationContext)
+
+        val layoutParams = MarginLayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
+        layoutParams.setMargins(0, 0, 0, 0)
+        tunerView.layoutParams = layoutParams
+
+        layout.addView(tunerView)
 
         val obs = Observer<PitchError?> { err ->
-            strobe.start()
-            strobe.errorInCents = err?.errorInCents?.toFloat() ?: 0f
+            tunerView.start()
+            tunerView.errorInCents = err?.errorInCents?.toFloat() ?: 0f
         }
 
         val model: TunerModel by viewModels()

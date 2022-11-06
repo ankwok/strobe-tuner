@@ -5,16 +5,17 @@ import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.util.AttributeSet
-import android.view.View
 import com.akwok.strobetuner.R
 import java.lang.Float.max
 import java.lang.Float.min
 
-class StrobeView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
+class StrobeView(context: Context, attrs: AttributeSet?) : TunerView(context, attrs) {
     constructor(context: Context) : this(context, null)
 
-    var numBands: Int = 8
-    var errorInCents: Float = 0f
+    override var octave: Int = 0
+    override var errorInCents: Float = 0f
+
+    private fun numBands(): Int = 2 * (octave + 1)
 
     private val darkPaint = Paint().apply {
         isAntiAlias = true
@@ -41,14 +42,14 @@ class StrobeView(context: Context, attrs: AttributeSet?) : View(context, attrs) 
         }
     }
 
-    fun start() {
+    override fun start() {
         if (animator.isPaused || !animator.isRunning || !animator.isStarted) {
             animator.start()
             animator.currentPlayTime = animatorClock
         }
     }
 
-    fun pause() {
+    override fun pause() {
         animatorClock = animator.currentPlayTime
         animator.pause()
     }
@@ -62,13 +63,14 @@ class StrobeView(context: Context, attrs: AttributeSet?) : View(context, attrs) 
     }
 
     private fun drawStrobeAndUpdateState(canvas: Canvas) {
-        val dx = (width - 2 * padding) / (2 * numBands)
+        val bands = numBands()
+        val dx = (width - 2 * padding) / (2 * bands)
 
         canvas.drawRect(padding, padding, width - padding, height - padding, lightColor)
 
         val offset = calcOffset(width - 2 * padding.toInt(), dx, errorInCents, deltaT, lastOffset)
 
-        (0 until numBands + 1)
+        (0 until bands + 1)
             .forEach { i ->
                 val left = max(padding, padding + 2 * i * dx + offset)
                 val right = min(width - padding, padding + (2 * i + 1) * dx + offset)
