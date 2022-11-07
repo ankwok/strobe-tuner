@@ -2,6 +2,7 @@ package com.akwok.strobetuner
 
 import android.Manifest
 import android.app.AlertDialog
+import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.View
@@ -16,6 +17,7 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
+import androidx.preference.PreferenceManager
 import com.akwok.strobetuner.models.TunerModel
 import com.akwok.strobetuner.tuner.PitchError
 import com.akwok.strobetuner.views.SettingsFragment
@@ -28,9 +30,20 @@ class TunerActivity : AppCompatActivity() {
     private lateinit var preferencesService: PreferencesService
     private lateinit var tunerView: TunerView
 
+    private val sharedPrefsListener = SharedPreferences.OnSharedPreferenceChangeListener { _, name ->
+        when (name) {
+            getString(R.string.dark_mode_pref), getString(R.string.error_text_pref),
+            getString(R.string.note_name_pref) -> recreate()
+            else -> Unit
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_tuner)
+
+        val prefs = PreferenceManager.getDefaultSharedPreferences(applicationContext)
+        prefs.registerOnSharedPreferenceChangeListener(sharedPrefsListener)
 
         preferencesService = PreferencesService(applicationContext)
 
@@ -42,28 +55,17 @@ class TunerActivity : AppCompatActivity() {
 
         setupTextUpdater()
         setupRefPicker()
-        setupStrobe()
     }
 
     override fun onResume() {
         super.onResume()
 
-        if (shouldRecreate()) {
-            recreate()
-        }
-
         startRecordingSound()
         setupRefPicker()
         setupThreshold()
+        setupStrobe()
 
         tunerView.start()
-    }
-
-    private fun shouldRecreate(): Boolean {
-        val visibility = if (preferencesService.shouldShowErr()) TextView.VISIBLE else TextView.GONE
-        val errText = findViewById<TextView>(R.id.cents_error)
-
-        return errText.visibility != visibility
     }
 
     private fun setupThreshold() {
