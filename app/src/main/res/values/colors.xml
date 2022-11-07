@@ -8,9 +8,11 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="dark_strobe">#FF202020</color>
-    <color name="dark_background">#FF717274 </color>
+    <color name="dark_background">#FF717274</color>
     <color name="light_background">#FFE3E4E9</color>
     <color name="light_strobe">#FFE1E1E1</color>
     <color name="light_2000k">#FFFF8A12</color>
     <color name="text_color">#FF202020</color>
+    <color name="needle_color">#B0FF8A12</color>
+    <color name="tick_color">#FF909090</color>
 </resources>

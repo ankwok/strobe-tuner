@@ -18,8 +18,10 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 import androidx.preference.PreferenceManager
+import com.akwok.strobetuner.models.TunerMode
 import com.akwok.strobetuner.models.TunerModel
 import com.akwok.strobetuner.tuner.PitchError
+import com.akwok.strobetuner.views.GaugeView
 import com.akwok.strobetuner.views.SettingsFragment
 import com.akwok.strobetuner.views.StrobeView
 import com.akwok.strobetuner.views.TunerView
@@ -33,7 +35,7 @@ class TunerActivity : AppCompatActivity() {
     private val sharedPrefsListener = SharedPreferences.OnSharedPreferenceChangeListener { _, name ->
         when (name) {
             getString(R.string.dark_mode_pref), getString(R.string.error_text_pref),
-            getString(R.string.note_name_pref) -> recreate()
+            getString(R.string.note_name_pref), getString(R.string.tuner_mode_pref) -> recreate()
             else -> Unit
         }
     }
@@ -134,7 +136,9 @@ class TunerActivity : AppCompatActivity() {
     private fun setupStrobe() {
         val layout = findViewById<ConstraintLayout>(R.id.tuner_layout)
 
-        tunerView = StrobeView(applicationContext)
+        tunerView =
+            if (preferencesService.getTunerMode() == TunerMode.STROBE) StrobeView(applicationContext)
+            else GaugeView(applicationContext)
 
         val layoutParams = MarginLayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)

@@ -3,6 +3,7 @@ package com.akwok.strobetuner
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.preference.PreferenceManager
+import com.akwok.strobetuner.models.TunerMode
 import com.akwok.strobetuner.tuner.PitchDetector
 import com.akwok.strobetuner.tuner.PitchHelper
 import com.akwok.strobetuner.views.SettingsFragment
@@ -44,10 +45,20 @@ class PreferencesService(private val ctx: Context) {
         editor.apply()
     }
 
+    fun getTunerMode(): TunerMode {
+        val strVal = getStringPref(
+            getPrefs(), ctx.getString(R.string.tuner_mode_pref), defaultTunerMode.toString())
+            .uppercase()
+
+        return try { TunerMode.valueOf(strVal) }
+            catch (_: java.lang.IllegalArgumentException) { defaultTunerMode }
+    }
+
     private fun getPrefs(): SharedPreferences = PreferenceManager.getDefaultSharedPreferences(ctx)
 
     companion object {
         const val errorTextDefault = true
+        val defaultTunerMode = TunerMode.STROBE
 
         fun getStringPref(prefs: SharedPreferences, key: String, default: String): String {
             val pref = prefs.getString(key, default)

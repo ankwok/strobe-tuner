@@ -9,4 +9,14 @@
         <item>english</item>
         <item>solfege</item>
     </string-array>
+
+    <string-array name="tuner_mode_entries">
+        <item>Strobe</item>
+        <item>Gauge</item>
+    </string-array>
+
+    <string-array name="tuner_mode_values">
+        <item>strobe</item>
+        <item>gauge</item>
+    </string-array>
 </resources>

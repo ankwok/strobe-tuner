@@ -2,6 +2,7 @@ package com.akwok.strobetuner
 
 import android.content.Context
 import android.content.SharedPreferences
+import com.akwok.strobetuner.models.TunerMode
 import com.akwok.strobetuner.tuner.PitchDetector
 import com.akwok.strobetuner.views.SettingsFragment
 import org.junit.Assert
@@ -119,6 +120,32 @@ class PreferencesServiceUnitTest {
             val actual = prefs.getReferenceFreq()
 
             Assert.assertEquals(expected, actual)
+        }
+    }
+
+    @Test
+    fun getTunerMode() {
+        val cases = listOf(
+            listOf("strobe", TunerMode.STROBE),
+            listOf("Strobe", TunerMode.STROBE),
+            listOf("STROBE", TunerMode.STROBE),
+            listOf("gauge", TunerMode.GAUGE),
+            listOf("GAUGE", TunerMode.GAUGE),
+            listOf(null, TunerMode.STROBE),
+            listOf("invalid", TunerMode.STROBE),
+        )
+
+        cases.forEach { case ->
+            val retVal = case[0] as String?
+            val expected = case[1] as TunerMode
+
+            val ctxMock = mockContext(R.string.tuner_mode_pref, retVal)
+            val prefs = PreferencesService(ctxMock)
+            val actual = prefs.getTunerMode()
+
+            Assert.assertEquals(
+                "Return value = $retVal, expected = $expected, actual = $actual",
+                expected, actual)
         }
     }
 

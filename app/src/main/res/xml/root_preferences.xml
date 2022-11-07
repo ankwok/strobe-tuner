@@ -32,4 +32,12 @@
         app:title="@string/error_text_title"
         android:defaultValue="true"/>
 
+    <DropDownPreference
+        app:key="@string/tuner_mode_pref"
+        app:title="@string/tuner_mode_title"
+        app:useSimpleSummaryProvider="true"
+        app:entries="@array/tuner_mode_entries"
+        app:entryValues="@array/tuner_mode_values"
+        app:defaultValue="@string/tuner_mode_default" />
+
 </PreferenceScreen>
