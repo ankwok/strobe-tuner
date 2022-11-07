@@ -143,7 +143,7 @@ class TunerActivity : AppCompatActivity() {
 
         val obs = Observer<PitchError?> { err ->
             tunerView.start()
-            tunerView.errorInCents = err?.errorInCents?.toFloat() ?: 0f
+            tunerView.errorInCents = err?.errorInCents?.toFloat()
         }
 
         val model: TunerModel by viewModels()

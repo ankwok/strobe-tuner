@@ -13,7 +13,7 @@ class StrobeView(context: Context, attrs: AttributeSet?) : TunerView(context, at
     constructor(context: Context) : this(context, null)
 
     override var octave: Int = 0
-    override var errorInCents: Float = 0f
+    override var errorInCents: Float? = null
 
     private fun numBands(): Int = 2 * (octave + 1)
 
@@ -57,8 +57,11 @@ class StrobeView(context: Context, attrs: AttributeSet?) : TunerView(context, at
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
 
-        canvas.apply {
-            drawStrobeAndUpdateState(this)
+        // The view may not be completely initialized so only draw if there's a positive width
+        if (width > 0) {
+            canvas.apply {
+                drawStrobeAndUpdateState(this)
+            }
         }
     }
 
@@ -89,10 +92,14 @@ class StrobeView(context: Context, attrs: AttributeSet?) : TunerView(context, at
         fun calcOffset(
             widthPixels: Int,
             modulo: Float,
-            errorInCents: Float,
+            errorInCents: Float?,
             deltaMillis: Long,
             lastOffset: Float
         ): Float {
+            if (errorInCents == null) {
+                return lastOffset
+            }
+
             val rate = scrollRate * errorInCents * widthPixels
             val deltaSec = deltaMillis.toFloat() / 1000f
             val newOffset = lastOffset + rate * deltaSec
