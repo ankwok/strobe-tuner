@@ -20,6 +20,7 @@
     <string name="tuner_mode_pref">tuner_mode_pref</string>
     <string name="tuner_mode_default">Strobe</string>
 
+    <string name="settings_title">Settings</string>
     <string name="reference_A_title">Reference A frequency</string>
     <string name="reference_A_dialog_title">Reference A frequency (%1$d-%2$d Hz)</string>
     <string name="sync_header">Sync</string>
