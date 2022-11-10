@@ -32,12 +32,6 @@ class GaugeView(context: Context, attrs: AttributeSet?) : TunerView(context, att
     private val heightPadding: Float
         get() = if (height > 0) paddingPct * height else 0f
 
-    private val tickColor = Paint().apply {
-        isAntiAlias = true
-        color = resources.getColor(R.color.tick_color, resources.newTheme())
-        style = Paint.Style.FILL_AND_STROKE
-    }
-
     private val animator = TimeAnimator()
 
     init {
@@ -85,11 +79,34 @@ class GaugeView(context: Context, attrs: AttributeSet?) : TunerView(context, att
     }
 
     private fun drawAndUpdateState(canvas: Canvas) {
+        clearView(canvas)
         drawTicks(canvas)
         drawNeedle(canvas)
     }
 
+    private fun clearView(canvas: Canvas) {
+        val backgroundPaint = Paint().apply {
+            isAntiAlias = true
+            color = resources.getColor(R.color.tuner_background, context.theme)
+            style = Paint.Style.FILL_AND_STROKE
+        }
+
+        canvas.drawRect(
+            widthPadding,
+            2 * heightPadding,
+            width - widthPadding,
+            height - 2 * heightPadding,
+            backgroundPaint
+        )
+    }
+
     private fun drawTicks(canvas: Canvas) {
+        val tickColor = Paint().apply {
+            isAntiAlias = true
+            color = resources.getColor(R.color.tick_color, context.theme)
+            style = Paint.Style.FILL_AND_STROKE
+        }
+
         val majorTickTop = height.toFloat() / 2 - height.toFloat() / 8
         val majorTickBottom = height.toFloat() / 2 + height.toFloat() / 8
         val majorTickHalfWidth = majorTicksWidthPct * width / 2
@@ -122,14 +139,13 @@ class GaugeView(context: Context, attrs: AttributeSet?) : TunerView(context, att
     private fun drawNeedle(canvas: Canvas) {
         if (needleCenter <= 0) { return }
 
-        val theme = resources.newTheme()
         val needleColor = computeNeedleColor(
             needleCenter,
             width.toFloat() / 2,
             computeNeedleCenter(mehError, width, widthPadding),
             computeNeedleCenter(okError, width, widthPadding),
-            resources.getColor(R.color.needle_color, theme),
-            resources.getColor(R.color.needle_color_ok, theme)
+            resources.getColor(R.color.needle_color, context.theme),
+            resources.getColor(R.color.needle_color_ok, context.theme)
         )
         val needlePaint = Paint().apply {
             isAntiAlias = true
@@ -141,9 +157,9 @@ class GaugeView(context: Context, attrs: AttributeSet?) : TunerView(context, att
         val halfWidth = needleWidth / 2
         canvas.drawRect(
             needleCenter - halfWidth,
-            2 * heightPadding,
+            3 * heightPadding,
             needleCenter + halfWidth,
-            height - 2 * heightPadding,
+            height - 3 * heightPadding,
             needlePaint
         )
     }

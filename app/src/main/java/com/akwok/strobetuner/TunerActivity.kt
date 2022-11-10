@@ -137,8 +137,8 @@ class TunerActivity : AppCompatActivity() {
         val layout = findViewById<ConstraintLayout>(R.id.tuner_layout)
 
         tunerView =
-            if (preferencesService.getTunerMode() == TunerMode.STROBE) StrobeView(applicationContext)
-            else GaugeView(applicationContext)
+            if (preferencesService.getTunerMode() == TunerMode.STROBE) StrobeView(this)
+            else GaugeView(this)
 
         val layoutParams = MarginLayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
