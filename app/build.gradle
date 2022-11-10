@@ -35,7 +35,6 @@ android {
 }
 
 dependencies {
-    implementation 'androidx.preference:preference-ktx:1.2.0'
     def lifecycle_version = "2.5.1"
     def activity_version = "1.6.1"
     def fragment_version = "1.5.4"
@@ -50,8 +49,9 @@ dependencies {
     implementation 'androidx.documentfile:documentfile:1.0.1'
     testImplementation 'junit:junit:'
     testImplementation 'org.mockito.kotlin:mockito-kotlin:4.0.0'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.3'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
+    androidTestImplementation 'androidx.test.ext:junit-ktx:1.1.4'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.0'
+    implementation 'androidx.preference:preference-ktx:1.2.0'
 
     // Activity
     implementation "androidx.activity:activity-ktx:$activity_version"

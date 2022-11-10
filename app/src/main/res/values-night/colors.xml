@@ -13,6 +13,7 @@
     <color name="light_strobe">#FFE1E1E1</color>
     <color name="light_2000k">#FFFF8A12</color>
     <color name="text_color">#FFFF8A12</color>
-    <color name="needle_color">#FFFF8A12</color>
+    <color name="needle_color">#B0FF8A12</color>
+    <color name="needle_color_ok">#B04CAF50</color>
     <color name="tick_color">#FF909090</color>
 </resources>

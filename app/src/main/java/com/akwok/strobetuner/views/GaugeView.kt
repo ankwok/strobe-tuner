@@ -3,14 +3,13 @@ package com.akwok.strobetuner.views
 import android.animation.TimeAnimator
 import android.content.Context
 import android.graphics.Canvas
+import android.graphics.Color
 import android.graphics.Paint
 import android.util.AttributeSet
-import android.view.View
+import androidx.annotation.ColorInt
+import androidx.core.graphics.alpha
 import com.akwok.strobetuner.R
-import kotlin.math.abs
-import kotlin.math.pow
-import kotlin.math.sign
-import kotlin.math.sqrt
+import kotlin.math.*
 
 class GaugeView(context: Context, attrs: AttributeSet?) : TunerView(context, attrs) {
     constructor(context: Context) : this(context, null)
@@ -32,12 +31,6 @@ class GaugeView(context: Context, attrs: AttributeSet?) : TunerView(context, att
 
     private val heightPadding: Float
         get() = if (height > 0) paddingPct * height else 0f
-
-    private val needlePaint = Paint().apply {
-        isAntiAlias = true
-        color = resources.getColor(R.color.needle_color, resources.newTheme())
-        style = Paint.Style.FILL_AND_STROKE
-    }
 
     private val tickColor = Paint().apply {
         isAntiAlias = true
@@ -129,13 +122,28 @@ class GaugeView(context: Context, attrs: AttributeSet?) : TunerView(context, att
     private fun drawNeedle(canvas: Canvas) {
         if (needleCenter <= 0) { return }
 
+        val theme = resources.newTheme()
+        val needleColor = computeNeedleColor(
+            needleCenter,
+            width.toFloat() / 2,
+            computeNeedleCenter(mehError, width, widthPadding),
+            computeNeedleCenter(okError, width, widthPadding),
+            resources.getColor(R.color.needle_color, theme),
+            resources.getColor(R.color.needle_color_ok, theme)
+        )
+        val needlePaint = Paint().apply {
+            isAntiAlias = true
+            color = needleColor
+            style = Paint.Style.FILL_AND_STROKE
+        }
+
         val needleWidth = width * needleWidthPct
         val halfWidth = needleWidth / 2
         canvas.drawRect(
             needleCenter - halfWidth,
             2 * heightPadding,
             needleCenter + halfWidth,
-            height - heightPadding,
+            height - 2 * heightPadding,
             needlePaint
         )
     }
@@ -144,7 +152,7 @@ class GaugeView(context: Context, attrs: AttributeSet?) : TunerView(context, att
         private const val paddingPct = 0.05f
         private const val needleWidthPct = 0.01f // percent of width
         private const val exponent = 1 / 1.75
-        private const val kp = 20f
+        private const val kp = 36f
         private val damping = sqrt(4 * kp) // critically damped
 
         private val majorTicks = (-10 .. 10).map { i -> 5f * i }
@@ -153,6 +161,9 @@ class GaugeView(context: Context, attrs: AttributeSet?) : TunerView(context, att
             .map { x -> x.toFloat() }
             .filterNot { x -> majorTicks.contains(x) }
         private const val minorTicksWidthPct = 0.004f
+
+        private const val mehError = 10f // cents
+        private const val okError = 1f // cents
 
         fun computeNeedleCenter(errorInCents: Float, width: Int, padding: Float): Float {
             val mid = width / 2
@@ -163,5 +174,67 @@ class GaugeView(context: Context, attrs: AttributeSet?) : TunerView(context, att
 
             return mid + errorInCents.sign * offset.toFloat()
         }
+
+        fun computeNeedleColor(
+            needleCenter: Float,
+            center: Float,
+            badPosition: Float,
+            okPosition: Float,
+            @ColorInt badColor: Int,
+            @ColorInt okColor: Int
+        ): Int {
+            val absErr = abs(needleCenter - center)
+            val badErr = badPosition - center
+            val okErr = okPosition - center
+            if (absErr > badErr) {
+                return badColor
+            } else if (absErr <= okErr) {
+                return okColor
+            }
+
+            val t = (absErr - okErr) / (badErr - okErr)
+            val color = interpHsv(okColor, badColor, t)
+            return color
+        }
+
+        fun interpHsv(@ColorInt color1: Int, @ColorInt color2: Int, t: Float): Int {
+            val hsv1 = FloatArray(3)
+            Color.colorToHSV(color1, hsv1)
+
+            val hsv2 = FloatArray(3)
+            Color.colorToHSV(color2, hsv2)
+
+            val alpha = interp(color1.alpha, color2.alpha, t).roundToInt()
+            val interpHsv = FloatArray(3)
+
+            interpHsv[0] = interpAngle(hsv1[0], hsv2[0], t)
+            interpHsv[1] = interp(hsv1[1], hsv2[1], t)
+            interpHsv[2] = interp(hsv1[2], hsv2[2], t)
+
+            return Color.HSVToColor(alpha, interpHsv)
+        }
+
+        fun interpAngle(theta1: Float, theta2: Float, t: Float): Float {
+            var delta = theta2 - theta1
+            while (delta > 180) {
+                delta -= 360
+            }
+            while (delta <= -180) {
+                delta += 360
+            }
+
+            var interp = theta1 + t * delta
+            while (interp < 0) {
+                interp += 360
+            }
+            while (interp >= 360) {
+                interp -= 360
+            }
+
+            return interp
+        }
+
+        private fun interp(x: Int, y: Int, t: Float): Float = t * y + (1 - t) * x
+        private fun interp(x: Float, y: Float, t: Float): Float = t * y + (1 - t) * x
     }
 }
