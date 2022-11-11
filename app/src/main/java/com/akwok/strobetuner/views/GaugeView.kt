@@ -17,7 +17,7 @@ class GaugeView(context: Context, attrs: AttributeSet?) : TunerView(context, att
     private var needleCenter: Float = -1f
     private var needleVelocity: Float = 0f
 
-    override var octave: Int = 0
+    override var octave: Int? = null
 
     override var errorInCents: Float? = null
         set(value) {

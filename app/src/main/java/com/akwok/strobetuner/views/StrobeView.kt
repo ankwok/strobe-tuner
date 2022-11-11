@@ -12,10 +12,16 @@ import java.lang.Float.min
 class StrobeView(context: Context, attrs: AttributeSet?) : TunerView(context, attrs) {
     constructor(context: Context) : this(context, null)
 
-    override var octave: Int = 0
+    override var octave: Int? = null
+        set(value) {
+            if (value != null) {
+                field = value
+            }
+        }
+
     override var errorInCents: Float? = null
 
-    private fun numBands(): Int = 2 * (octave + 1)
+    private fun numBands(): Int = 2 * (octave!! + 1)
 
     private val darkPaint = Paint().apply {
         isAntiAlias = true
@@ -57,8 +63,9 @@ class StrobeView(context: Context, attrs: AttributeSet?) : TunerView(context, at
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
 
-        // The view may not be completely initialized so only draw if there's a positive width
-        if (width > 0) {
+        // The view may not be completely initialized so only draw if there's a positive width,
+        // and if there is a valid error
+        if (width > 0 && octave != null) {
             canvas.apply {
                 drawStrobeAndUpdateState(this)
             }

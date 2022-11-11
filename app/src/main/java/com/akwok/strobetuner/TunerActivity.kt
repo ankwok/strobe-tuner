@@ -55,6 +55,7 @@ class TunerActivity : AppCompatActivity() {
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
         }
 
+        setupTuner()
         setupTextUpdater()
         setupRefPicker()
     }
@@ -63,14 +64,12 @@ class TunerActivity : AppCompatActivity() {
         super.onResume()
 
         startRecordingSound()
-        setupRefPicker()
-        setupThreshold()
-        setupStrobe()
-
+        syncRefPicker()
+        syncThreshold()
         tunerView.start()
     }
 
-    private fun setupThreshold() {
+    private fun syncThreshold() {
         val model: TunerModel by viewModels()
         model.detectionThreshold.postValue(preferencesService.getDetectionThreshold())
     }
@@ -112,8 +111,6 @@ class TunerActivity : AppCompatActivity() {
 
         val centsErr = findViewById<TextView>(R.id.cents_error)
         centsErr.text = getString(R.string.cents_err, pitchError.errorInCents.roundToInt())
-
-        tunerView.octave = pitchError.expected.octave
     }
 
     private fun setupRefPicker() {
@@ -123,17 +120,22 @@ class TunerActivity : AppCompatActivity() {
 
         val model: TunerModel by viewModels()
 
-        val savedRef = preferencesService.getReferenceFreq()
-        picker.value = savedRef
-        model.referenceA.postValue(savedRef)
-
         picker.setOnValueChangedListener { _, _, newVal ->
             model.referenceA.postValue(newVal)
             preferencesService.setReferenceFreq(newVal)
         }
     }
 
-    private fun setupStrobe() {
+    private fun syncRefPicker() {
+        val picker = findViewById<NumberPicker>(R.id.ref_picker)
+        val model: TunerModel by viewModels()
+
+        val savedRef = preferencesService.getReferenceFreq()
+        picker.value = savedRef
+        model.referenceA.postValue(savedRef)
+    }
+
+    private fun setupTuner() {
         val layout = findViewById<ConstraintLayout>(R.id.tuner_layout)
 
         tunerView =
@@ -148,8 +150,8 @@ class TunerActivity : AppCompatActivity() {
         layout.addView(tunerView)
 
         val obs = Observer<PitchError?> { err ->
-            tunerView.start()
             tunerView.errorInCents = err?.errorInCents?.toFloat()
+            tunerView.octave = err?.expected?.octave
         }
 
         val model: TunerModel by viewModels()
