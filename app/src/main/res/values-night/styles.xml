@@ -2,10 +2,10 @@
 <resources>
     <style name="NumberPickerText">
         <item name="android:textSize">24sp</item>
-        <item name="android:textColorPrimary">@color/light_2000k</item>
+        <item name="android:textColorPrimary">@color/text_color</item>
         <item name="android:background">@color/dark_background</item>
     </style>
     <style name="NoteNameText">
-        <item name="android:textColorPrimary">@color/light_2000k</item>
+        <item name="android:textColorPrimary">@color/text_color</item>
     </style>
 </resources>

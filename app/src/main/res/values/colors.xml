@@ -1,20 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="purple_200">#FFBB86FC</color>
-    <color name="purple_500">#FF6200EE</color>
-    <color name="purple_700">#FF3700B3</color>
-    <color name="teal_200">#FF03DAC5</color>
-    <color name="teal_700">#FF018786</color>
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
     <color name="dark_strobe">#FF202020</color>
     <color name="dark_background">#FF717274</color>
     <color name="light_background">#FFE3E4E9</color>
-    <color name="tuner_background">#FFEFF1F6</color>
+    <color name="tuner_background">#FFF0F2F7</color>
     <color name="light_strobe">#FFE1E1E1</color>
+    <color name="brown">#FF6A3300</color>
     <color name="light_2000k">#FFFF8A12</color>
+    <color name="light_2500k">#FFFFA148</color>
+    <color name="light_3500k">#FFFFC489</color>
     <color name="text_color">#FF202020</color>
-    <color name="needle_color">#B0FF8A12</color>
+    <color name="needle_color">@color/light_2000k</color>
     <color name="needle_color_ok">#B04CAF50</color>
     <color name="tick_color">#FF909090</color>
 </resources>
