@@ -2,7 +2,8 @@ package com.akwok.strobetuner.tuner
 
 import com.akwok.strobetuner.io.AudioData
 import org.jtransforms.fft.FloatFFT_1D
-import kotlin.math.sqrt
+import kotlin.math.max
+import kotlin.math.pow
 
 class PitchDetector(val ref: Double, val detectionThreshold: Double = defaultDetectionThreshold) {
 
@@ -25,19 +26,18 @@ class PitchDetector(val ref: Double, val detectionThreshold: Double = defaultDet
 
         if (currentPitch != measurement.expected)
         {
-            val halfCentPeriod = measurement.actualPeriod * (1 - 1.0 / sqrt(PitchHelper.centRatio))
+            val qParam = getQParameter(audioDat.dat.size, audioDat.sampleRate, measurement)
             kalmanFilter = KalmanUpdater(
-                KalmanState(measurement.actualPeriod, measurement.std * measurement.std),
-                halfCentPeriod * halfCentPeriod)
+                KalmanState(measurement.actualPeriod, measurement.variance), qParam)
             currentPitch = measurement.expected
         } else {
-            kalmanFilter!!.update(measurement.actualPeriod, measurement.std * measurement.std)
+            kalmanFilter!!.update(measurement.actualPeriod, measurement.variance)
         }
 
         return PitchError(
             measurement.expected,
             kalmanFilter!!.stateEstimate.x,
-            sqrt(kalmanFilter!!.stateEstimate.P))
+            kalmanFilter!!.stateEstimate.P)
     }
 
     private fun autocorrDetect(audioDat: AudioData): PitchError? {
@@ -47,20 +47,25 @@ class PitchDetector(val ref: Double, val detectionThreshold: Double = defaultDet
         val maxVal = valid.maxOrNull()!!
         val dx = maxVal / gridSearchNum
 
-        val err = (0 until gridSearchNum)
+        val bestGuess = (0 until gridSearchNum)
             .map { i ->
-                val offset = i * dx
-                val avgPeriod = computePeriodFromZeroCrossings(AudioData(valid, audioDat.sampleRate), offset.toDouble())
-                val avgFreq = 1.0 / avgPeriod.mean
-                val closestPitch = findClosestPitch(avgFreq)
-                PitchError(closestPitch, avgPeriod.mean, avgPeriod.std)
+                computePeriodFromZeroCrossings(
+                    AudioData(valid, audioDat.sampleRate),
+                    (i * dx).toDouble()
+                )
             }
-            .minByOrNull { err -> PitchErr(err.expected, err.ci) }!!
+            .filter { moment -> moment.mean.isFinite() }
+            .map { moment ->
+                val avgFreq = 1.0 / moment.mean
+                val closestPitch = findClosestPitch(avgFreq)
+                PitchError(closestPitch, moment.mean, moment.variance)
+            }
+            .minWithOrNull(pitchErrorComparator)
 
-        return if (err.actualPeriod.isFinite()) err else null
+        return bestGuess
     }
 
-    private fun computePeriodFromZeroCrossings(audioDat: AudioData, offset: Double): MeanStd {
+    private fun computePeriodFromZeroCrossings(audioDat: AudioData, offset: Double): Moments {
         val dt = 1.0 / audioDat.sampleRate
         val audio = audioDat.dat
 
@@ -79,7 +84,7 @@ class PitchDetector(val ref: Double, val detectionThreshold: Double = defaultDet
         }
 
         if (zeros.isEmpty()) {
-            return MeanStd(Double.NaN, Double.NaN)
+            return Moments(Double.NaN, Double.NaN)
         }
 
         val deltas = List(zeros.size - 1) { i -> zeros[i + 1] - zeros[i] }
@@ -90,9 +95,9 @@ class PitchDetector(val ref: Double, val detectionThreshold: Double = defaultDet
             val diff = del - avg
             variance += diff * diff
         }
-        variance /= deltas.size
+        variance /= max(deltas.size - 1, 1) // Use unbiased variance estimate if possible
 
-        return MeanStd(avg, sqrt(variance))
+        return Moments(avg, variance)
     }
 
     private fun autocorrelate(audio: FloatArray): FloatArray {
@@ -133,17 +138,25 @@ class PitchDetector(val ref: Double, val detectionThreshold: Double = defaultDet
         return pitches[right]
     }
 
-    private data class PitchErr(val pitch: Pitch, val ci: Interval) : Comparable<PitchErr> {
-        override fun compareTo(other: PitchErr): Int = when {
-            pitch < other.pitch -> -1
-            pitch > other.pitch -> 1
-            else -> ci.size.compareTo(other.ci.size)
-        }
-
-    }
-
     companion object {
         const val defaultDetectionThreshold: Double = 0.1
         const val maxDetectionThreshold = 0.4
+        private const val driftInCentsPerSecond = 0.5
+
+        private fun getQParameter(sampleSize: Int, sampleRate: Int, measurement: PitchError): Double {
+            val durationSeconds = sampleSize.toDouble() / sampleRate
+
+            // freq = 1 / period
+            // freq * centRatio^(drift) = 1 / period_2
+            // period - period_2 = (1 / freq - 1 / (freq * centRatio^(drift)))
+            //                   = 1 / freq * (1 - centRatio^(-drift))
+            //                   = period * (1 - centRatio^(-drift))
+            val driftPeriod = measurement.actualPeriod * (
+                    1.0 - PitchHelper.centRatio.pow(-driftInCentsPerSecond))
+            return driftPeriod * driftPeriod * durationSeconds * durationSeconds
+        }
+
+        private val pitchErrorComparator =
+            compareBy<PitchError> { it.expected }.thenBy { it.variance }
     }
 }
