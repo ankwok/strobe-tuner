@@ -18,18 +18,19 @@ class PitchHelperUnitTest {
     }
 
     @Test
-    fun thereAreNineOctaves() {
+    fun containsOnlyPianoNotes() {
         val pitches = PitchHelper.getFrequencies(440.0)
-        assertEquals(9 * 12, pitches.size)
-    }
 
-    @Test
-    fun c0IsFirst() {
-        val pitches = PitchHelper.getFrequencies(440.0)
+        assertEquals(88, pitches.size)
+
         val first = pitches.first()
-
-        assertEquals(PitchName.C, first.pitch)
+        assertEquals(PitchName.A, first.pitch)
         assertEquals(0, first.octave)
-        assertEquals(16.35, first.freq, 1e-2)
+        assertEquals(440.0 / 16, first.freq, 1e-2)
+
+        val last = pitches.last()
+        assertEquals(PitchName.C, last.pitch)
+        assertEquals(8, last.octave)
+        assertEquals(4186.0, last.freq, 1e-2)
     }
 }

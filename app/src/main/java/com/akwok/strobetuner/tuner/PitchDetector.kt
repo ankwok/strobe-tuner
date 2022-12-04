@@ -8,7 +8,8 @@ import kotlin.math.pow
 class PitchDetector(val ref: Double, val detectionThreshold: Double = defaultDetectionThreshold) {
 
     private val pitches = PitchHelper.getFrequencies(ref)
-    private val gridSearchNum = 5
+    private val smallestPeriod = 1.0 / (pitches.last().freq * PitchHelper.centRatio.pow(49))
+    private val longestPeriod = 1.0 / (pitches.first().freq * PitchHelper.centRatio.pow(-50))
 
     private var kalmanFilter: KalmanUpdater? = null
     private var currentPitch: Pitch? = null
@@ -54,7 +55,7 @@ class PitchDetector(val ref: Double, val detectionThreshold: Double = defaultDet
                     (i * dx).toDouble()
                 )
             }
-            .filter { moment -> moment.mean.isFinite() }
+            .filter { moment -> moment.mean.isFinite() && moment.mean in smallestPeriod..longestPeriod }
             .map { moment ->
                 val avgFreq = 1.0 / moment.mean
                 val closestPitch = findClosestPitch(avgFreq)
@@ -139,6 +140,7 @@ class PitchDetector(val ref: Double, val detectionThreshold: Double = defaultDet
     }
 
     companion object {
+        private const val gridSearchNum = 5
         const val defaultDetectionThreshold: Double = 0.1
         const val maxDetectionThreshold = 0.4
         private const val driftInCentsPerSecond = 0.5

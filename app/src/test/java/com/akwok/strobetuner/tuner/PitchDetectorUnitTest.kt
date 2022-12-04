@@ -39,7 +39,9 @@ class PitchDetectorUnitTest {
     private val detectCases = listOf(
         arrayOf(439.0, Pitch(PitchName.A, 4, 440.0)),
         arrayOf(440.0, Pitch(PitchName.A, 4, 440.0)),
-        arrayOf(441.0, Pitch(PitchName.A, 4, 440.0))
+        arrayOf(441.0, Pitch(PitchName.A, 4, 440.0)),
+        arrayOf(10.0, null),
+        arrayOf(20000.0, null)
     )
 
     private fun sineWave(freq: Double, offset: Double) = (0 until 4096)
@@ -50,13 +52,25 @@ class PitchDetectorUnitTest {
         .forEach { case ->
             val detector = PitchDetector(440.0)
             val freq = case[0] as Double
-            val expectedPitch = case[1] as Pitch
+            val expectedPitch = case[1] as Pitch?
 
             val audio = sineGenerator(freq)
             val pitchError = detector.detect(AudioData(audio, sampleRate))
 
-            Assert.assertEquals("Test case ($freq, $expectedPitch)", expectedPitch, pitchError!!.expected)
-            Assert.assertEquals("Test case ($freq, $expectedPitch)", freq, pitchError!!.actualFreq, 1e-3)
+            Assert.assertEquals(
+                "Test case ($freq, $expectedPitch)",
+                expectedPitch,
+                pitchError?.expected
+            )
+
+            if (pitchError != null) {
+                Assert.assertEquals(
+                    "Test case ($freq, $expectedPitch)",
+                    freq,
+                    pitchError.actualFreq,
+                    1e-3
+                )
+            }
         }
 
     @Test
