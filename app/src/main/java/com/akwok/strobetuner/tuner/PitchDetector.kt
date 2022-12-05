@@ -19,17 +19,15 @@ class PitchDetector(val ref: Double, val detectionThreshold: Double = defaultDet
     }
 
     private fun detectWithKalmanFilter(audioDat: AudioData): PitchError? {
-        if (audioDat.dat.maxOrNull().let { x -> x == null || x <= detectionThreshold }) {
-            return null
-        }
+        if (!audioDat.dat.any { it > detectionThreshold }) return null
 
         val measurement = autocorrDetect(audioDat) ?: return null
 
-        if (currentPitch != measurement.expected)
-        {
+        if (currentPitch != measurement.expected) {
             val qParam = getQParameter(audioDat.dat.size, audioDat.sampleRate, measurement)
             kalmanFilter = KalmanUpdater(
-                KalmanState(measurement.actualPeriod, measurement.variance), qParam)
+                KalmanState(measurement.actualPeriod, measurement.variance), qParam
+            )
             currentPitch = measurement.expected
         } else {
             kalmanFilter!!.update(measurement.actualPeriod, measurement.variance)
@@ -38,15 +36,15 @@ class PitchDetector(val ref: Double, val detectionThreshold: Double = defaultDet
         return PitchError(
             measurement.expected,
             kalmanFilter!!.stateEstimate.x,
-            kalmanFilter!!.stateEstimate.P)
+            kalmanFilter!!.stateEstimate.P
+        )
     }
 
     private fun autocorrDetect(audioDat: AudioData): PitchError? {
         val autocorr = autocorrelate(audioDat.dat)
         val valid = autocorr.sliceArray(IntRange(0, autocorr.size / 2))
 
-        val maxVal = valid.maxOrNull()!!
-        val dx = maxVal / gridSearchNum
+        val dx = getMax(valid) / gridSearchNum
 
         val bestGuess = (0 until gridSearchNum)
             .map { i ->
@@ -66,15 +64,38 @@ class PitchDetector(val ref: Double, val detectionThreshold: Double = defaultDet
         return bestGuess
     }
 
+    private fun getMax(arr: FloatArray): Float { // avoid null checks from built-in max() function
+        var max = arr[0]
+        for (value in arr) {
+            if (value > max) {
+                max = value
+            }
+        }
+
+        return max
+    }
+
     private fun computePeriodFromZeroCrossings(audioDat: AudioData, offset: Double): Moments {
+        val zeros = findZeros(audioDat, offset)
+        if (zeros.isEmpty()) {
+            return Moments(Double.NaN, Double.NaN)
+        }
+
+        val deltas = List(zeros.size - 1) { i -> zeros[i + 1] - zeros[i] }
+        val avg = deltas.average()
+        val variance = calcVariance(deltas, avg)
+        return Moments(avg, variance)
+    }
+
+    private fun findZeros(audioDat: AudioData, offset: Double): List<Double> {
         val dt = 1.0 / audioDat.sampleRate
         val audio = audioDat.dat
 
-        val zeros = emptyList<Double>().toMutableList()
+        val zeros = MutableList(0) { 0.0 }
         for (i in 0 until (audio.size - 1)) {
             val t1 = dt * i
-            val x1 = audio[i].toDouble()
-            val x2 = audio[i + 1].toDouble()
+            val x1 = audio[i]
+            val x2 = audio[i + 1]
 
             if (x1 > offset && x2 <= offset) {
                 // y - y1 = m(x - x1)
@@ -84,21 +105,17 @@ class PitchDetector(val ref: Double, val detectionThreshold: Double = defaultDet
             }
         }
 
-        if (zeros.isEmpty()) {
-            return Moments(Double.NaN, Double.NaN)
-        }
+        return zeros
+    }
 
-        val deltas = List(zeros.size - 1) { i -> zeros[i + 1] - zeros[i] }
-        val avg = deltas.average()
-
+    private fun calcVariance(arr: List<Double>, avg: Double): Double {
         var variance = 0.0
-        for (del in deltas) {
-            val diff = del - avg
+        for (value in arr) {
+            val diff = value - avg
             variance += diff * diff
         }
-        variance /= max(deltas.size - 1, 1) // Use unbiased variance estimate if possible
-
-        return Moments(avg, variance)
+        variance /= max(arr.size - 1, 1) // Use unbiased variance estimate if possible
+        return variance
     }
 
     private fun autocorrelate(audio: FloatArray): FloatArray {
