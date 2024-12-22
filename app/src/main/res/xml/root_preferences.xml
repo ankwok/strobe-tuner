@@ -2,9 +2,11 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <EditTextPreference
-        app:key="@string/ref_A_pref"
+        android:digits="0123456789"
         android:inputType="number"
-        android:digits="0123456789" />
+        app:key="@string/ref_A_pref"
+        app:title="@string/reference_A_title"
+        app:useSimpleSummaryProvider="false" />
 
     <SeekBarPreference
         android:id="@+id/noise_rejection"
@@ -31,13 +33,5 @@
         app:key="@string/error_text_pref"
         app:title="@string/error_text_title"
         android:defaultValue="true"/>
-
-    <DropDownPreference
-        app:key="@string/tuner_mode_pref"
-        app:title="@string/tuner_mode_title"
-        app:useSimpleSummaryProvider="true"
-        app:entries="@array/tuner_mode_entries"
-        app:entryValues="@array/tuner_mode_values"
-        app:defaultValue="@string/tuner_mode_default" />
 
 </PreferenceScreen>

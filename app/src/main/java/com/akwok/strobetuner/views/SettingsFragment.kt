@@ -15,7 +15,6 @@ class SettingsFragment : PreferenceFragmentCompat() {
         val preferencesService = PreferencesService(requireContext())
 
         val refAPref = findPreference<EditTextPreference>(getString(R.string.ref_A_pref))!!
-        refAPref.title = getString(R.string.reference_A_title)
         refAPref.summaryProvider = Preference.SummaryProvider<EditTextPreference> {
             val refFreq = preferencesService.getReferenceFreq()
             "$refFreq Hz"

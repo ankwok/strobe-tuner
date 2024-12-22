@@ -17,8 +17,6 @@
     <string name="note_name_default">english</string>
     <string name="dark_mode_pref">dark_mode_pref</string>
     <string name="error_text_pref">error_text_pref</string>
-    <string name="tuner_mode_pref">tuner_mode_pref</string>
-    <string name="tuner_mode_default">Strobe</string>
 
     <string name="settings_title">Settings</string>
     <string name="reference_A_title">Reference A frequency</string>
