@@ -1,4 +1,4 @@
-package com.akwok.strobetuner.tuner
+package com.akwok.simpletuner.tuner
 
 /**
  * Only deal with the results of realForward() on even-sized arrays.  From JTransforms doc, the

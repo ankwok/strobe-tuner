@@ -1,16 +1,16 @@
 <resources>
-    <string name="app_name">Strobe Tuner</string>
+    <string name="app_name">Simple Tuner</string>
     <string name="record">Record</string>
     <string name="back">Back</string>
     <string name="note_name">%1$s %2$d</string>
     <string name="note_freq">%1$.1f Hz</string>
     <string name="cents_err">%1$+d cents</string>
-    <string name="mic_permissions_text">Strobe Tuner needs access to your device\'s microphone in order to function.</string>
+    <string name="mic_permissions_text">Simple Tuner needs access to your device\'s microphone in order to function.</string>
     <string name="ok">OK</string>
     <string name="no">No, thanks</string>
 
     <!-- Preferences -->
-    <string name="pref_name">com.akwok.strobetuner.prefs</string>
+    <string name="pref_name">com.akwok.simpletuner.prefs</string>
     <string name="ref_A_pref">reference_a</string>
     <string name="noise_rejection_pref">sensitivity_pref</string>
     <string name="note_name_pref">note_name_pref"</string>

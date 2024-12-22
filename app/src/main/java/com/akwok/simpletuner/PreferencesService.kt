@@ -1,11 +1,11 @@
-package com.akwok.strobetuner
+package com.akwok.simpletuner
 
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.preference.PreferenceManager
-import com.akwok.strobetuner.tuner.PitchDetector
-import com.akwok.strobetuner.tuner.PitchHelper
-import com.akwok.strobetuner.views.SettingsFragment
+import com.akwok.simpletuner.tuner.PitchDetector
+import com.akwok.simpletuner.tuner.PitchHelper
+import com.akwok.simpletuner.views.SettingsFragment
 
 class PreferencesService(private val ctx: Context) {
 

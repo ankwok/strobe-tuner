@@ -1,9 +1,9 @@
-package com.akwok.strobetuner
+package com.akwok.simpletuner
 
 import android.graphics.Color
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
-import com.akwok.strobetuner.views.GaugeView
+import com.akwok.simpletuner.views.GaugeView
 import org.junit.Assert
 import org.junit.Test
 import org.junit.runner.RunWith

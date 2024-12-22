@@ -1,4 +1,4 @@
-package com.akwok.strobetuner.tuner
+package com.akwok.simpletuner.tuner
 
 import kotlin.math.pow
 

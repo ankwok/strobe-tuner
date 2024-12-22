@@ -1,4 +1,4 @@
-package com.akwok.strobetuner
+package com.akwok.simpletuner
 
 import android.Manifest
 import android.app.AlertDialog
@@ -21,11 +21,11 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.Observer
 import androidx.preference.PreferenceManager
-import com.akwok.strobetuner.models.TunerModel
-import com.akwok.strobetuner.tuner.PitchError
-import com.akwok.strobetuner.views.GaugeView
-import com.akwok.strobetuner.views.SettingsFragment
-import com.akwok.strobetuner.views.TunerView
+import com.akwok.simpletuner.models.TunerModel
+import com.akwok.simpletuner.tuner.PitchError
+import com.akwok.simpletuner.views.GaugeView
+import com.akwok.simpletuner.views.SettingsFragment
+import com.akwok.simpletuner.views.TunerView
 import kotlin.math.roundToInt
 
 class TunerActivity : AppCompatActivity() {

@@ -1,4 +1,4 @@
-package com.akwok.strobetuner.views
+package com.akwok.simpletuner.views
 
 import android.content.Context
 import android.util.AttributeSet

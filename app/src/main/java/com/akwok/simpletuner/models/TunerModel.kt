@@ -1,12 +1,12 @@
-package com.akwok.strobetuner.models
+package com.akwok.simpletuner.models
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.akwok.strobetuner.io.MicReader
-import com.akwok.strobetuner.tuner.PitchDetector
-import com.akwok.strobetuner.tuner.PitchError
-import com.akwok.strobetuner.tuner.PitchHelper
+import com.akwok.simpletuner.io.MicReader
+import com.akwok.simpletuner.tuner.PitchDetector
+import com.akwok.simpletuner.tuner.PitchError
+import com.akwok.simpletuner.tuner.PitchHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 

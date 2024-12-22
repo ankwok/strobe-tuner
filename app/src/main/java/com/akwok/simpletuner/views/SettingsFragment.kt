@@ -1,11 +1,11 @@
-package com.akwok.strobetuner.views
+package com.akwok.simpletuner.views
 
 import android.os.Bundle
 import android.text.InputType
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.preference.*
-import com.akwok.strobetuner.PreferencesService
-import com.akwok.strobetuner.R
+import com.akwok.simpletuner.PreferencesService
+import com.akwok.simpletuner.R
 
 class SettingsFragment : PreferenceFragmentCompat() {
 

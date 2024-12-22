@@ -1,4 +1,4 @@
-package com.akwok.strobetuner.views
+package com.akwok.simpletuner.views
 
 import android.animation.TimeAnimator
 import android.content.Context
@@ -8,7 +8,7 @@ import android.graphics.Paint
 import android.util.AttributeSet
 import androidx.annotation.ColorInt
 import androidx.core.graphics.alpha
-import com.akwok.strobetuner.R
+import com.akwok.simpletuner.R
 import kotlin.math.*
 
 class GaugeView(context: Context, attrs: AttributeSet?) : TunerView(context, attrs) {

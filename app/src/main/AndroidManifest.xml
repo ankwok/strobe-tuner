@@ -9,17 +9,17 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true">
-        <activity android:name=".TunerActivity"
+        <activity android:name="com.akwok.simpletuner.TunerActivity"
             android:exported="true"
-            android:theme="@style/Theme.StrobeTuner">
+            android:theme="@style/Theme.SimpleTuner">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".SettingsActivity"
+        <activity android:name="com.akwok.simpletuner.SettingsActivity"
             android:exported="false"
-            android:parentActivityName=".TunerActivity"
+            android:parentActivityName="com.akwok.simpletuner.TunerActivity"
             android:theme="@style/Theme.Settings" />
     </application>
 

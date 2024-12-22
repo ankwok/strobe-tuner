@@ -1,4 +1,4 @@
-package com.akwok.strobetuner.io
+package com.akwok.simpletuner.io
 
 import android.media.AudioFormat
 import android.media.AudioRecord
@@ -42,7 +42,8 @@ class MicReader : AudioReader {
         private const val audioFormat = AudioFormat.ENCODING_PCM_FLOAT
 
         private val minBufferSize = AudioRecord.getMinBufferSize(
-            sampleRateInHz, channelConfig, audioFormat)
+            sampleRateInHz, channelConfig, audioFormat
+        )
 
         // 4 second buffer since each sample is a 4-byte float
         private val bufferSize = max(minBufferSize, sampleRateInHz * 4 * 4)

@@ -1,4 +1,4 @@
-package com.akwok.strobetuner.tuner
+package com.akwok.simpletuner.tuner
 
 /**
  * One-dimensional Kalman filter with no process and measurement dynamics and time-invariant

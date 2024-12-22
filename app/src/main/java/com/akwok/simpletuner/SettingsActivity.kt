@@ -1,4 +1,4 @@
-package com.akwok.strobetuner
+package com.akwok.simpletuner
 
 import android.app.Activity
 import android.content.Intent

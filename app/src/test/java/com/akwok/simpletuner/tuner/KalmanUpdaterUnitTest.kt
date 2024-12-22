@@ -1,5 +1,7 @@
-package com.akwok.strobetuner.tuner
+package com.akwok.simpletuner.tuner
 
+import com.akwok.simpletuner.tuner.KalmanState
+import com.akwok.simpletuner.tuner.KalmanUpdater
 import org.junit.Assert
 import org.junit.Test
 

@@ -1,9 +1,10 @@
-package com.akwok.strobetuner
+package com.akwok.simpletuner
 
 import android.content.Context
 import android.content.SharedPreferences
-import com.akwok.strobetuner.tuner.PitchDetector
-import com.akwok.strobetuner.views.SettingsFragment
+import com.akwok.simpletuner.tuner.PitchDetector
+import com.akwok.simpletuner.views.SettingsFragment
+import com.akwok.simpletuner.R
 import org.junit.Assert
 import org.junit.Test
 import org.mockito.ArgumentMatchers.*

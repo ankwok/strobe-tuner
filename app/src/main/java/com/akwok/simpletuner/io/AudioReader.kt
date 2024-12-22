@@ -1,4 +1,4 @@
-package com.akwok.strobetuner.io
+package com.akwok.simpletuner.io
 
 interface AudioReader {
     fun startRecording()

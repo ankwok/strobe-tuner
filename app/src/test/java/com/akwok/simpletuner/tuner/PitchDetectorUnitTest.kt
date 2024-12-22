@@ -1,6 +1,10 @@
-package com.akwok.strobetuner.tuner
+package com.akwok.simpletuner.tuner
 
-import com.akwok.strobetuner.io.AudioData
+import com.akwok.simpletuner.tuner.PitchDetector
+import com.akwok.simpletuner.tuner.PitchHelper
+import com.akwok.simpletuner.io.AudioData
+import com.akwok.simpletuner.tuner.Pitch
+import com.akwok.simpletuner.tuner.PitchName
 import org.junit.Assert
 import org.junit.Test
 import java.io.BufferedReader

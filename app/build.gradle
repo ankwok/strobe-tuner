@@ -7,7 +7,7 @@ android {
     compileSdk 35
 
     defaultConfig {
-        applicationId "com.akwok.strobetuner"
+        applicationId "com.akwok.simpletuner"
         minSdkVersion 23
         targetSdkVersion 35
         versionCode 23
@@ -32,7 +32,7 @@ android {
     kotlinOptions {
         jvmTarget = '1.8'
     }
-    namespace 'com.akwok.strobetuner'
+    namespace 'com.akwok.simpletuner'
 }
 
 dependencies {
