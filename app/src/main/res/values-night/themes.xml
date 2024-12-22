@@ -2,11 +2,13 @@
     <style name="Theme.StrobeTuner" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Status bar color. -->
         <item name="android:statusBarColor" >@color/dark_strobe</item>
+        <item name="android:windowLightStatusBar">false</item>
         <!-- Customize your theme here. -->
     </style>
     <style name="Theme.Settings" parent="Theme.Material3.DayNight">
         <item name="titleTextColor">@color/light_2500k</item>
         <item name="android:statusBarColor">@color/dark_strobe</item>
+        <item name="android:windowLightStatusBar">false</item>
         <item name="colorPrimary">@color/light_3500k</item>
         <item name="colorPrimaryContainer">@color/brown</item>
         <item name="colorSecondary">@color/light_3500k</item>

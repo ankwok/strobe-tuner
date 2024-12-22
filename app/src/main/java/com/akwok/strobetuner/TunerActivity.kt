@@ -16,6 +16,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
+import androidx.core.view.OnApplyWindowInsetsListener
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.Observer
 import androidx.preference.PreferenceManager
 import com.akwok.strobetuner.models.TunerModel
@@ -53,6 +56,7 @@ class TunerActivity : AppCompatActivity() {
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
         }
 
+        setupPadding()
         setupTuner()
         setupTextUpdater()
         setupRefPicker()
@@ -131,6 +135,19 @@ class TunerActivity : AppCompatActivity() {
         val savedRef = preferencesService.getReferenceFreq()
         picker.value = savedRef
         model.referenceA.postValue(savedRef)
+    }
+
+    private fun setupPadding() {
+        val listener = OnApplyWindowInsetsListener { v, insets ->
+            v.onApplyWindowInsets(insets.toWindowInsets())
+
+            val statusBarHeight = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
+            val padding = findViewById<ConstraintLayout>(R.id.status_bar_padding)
+            padding.layoutParams.height = statusBarHeight
+            insets
+        }
+
+        ViewCompat.setOnApplyWindowInsetsListener(window.decorView.rootView, listener)
     }
 
     private fun setupTuner() {
